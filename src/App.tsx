@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import AppRoutes from "./routes/index.route";
+import { useNavigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { USER_REGISTERED } from "./lib/constants";
-import { useNavigate } from "react-router-dom";
+import AppRoutes from "./routes/index.route";
 
 const App = () => {
   const navigate = useNavigate();
@@ -11,6 +11,8 @@ const App = () => {
     const handleMotion = (event: DeviceMotionEvent) => {
       const { x, y, z } = event.acceleration || { x: 0, y: 0, z: 0 };
       console.log("Acceleration:", x, y, z);
+      
+      
     };
 
     window.addEventListener("devicemotion", handleMotion);
