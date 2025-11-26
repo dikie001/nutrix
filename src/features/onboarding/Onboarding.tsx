@@ -6,17 +6,18 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import CTA from "./components/CTA";
+import { USER_DATA } from "@/lib/constants";
 
 // --- Types ---
 type OnboardingData = {
@@ -34,6 +35,7 @@ export default function OnboardingWizard() {
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
   const [start, setStart] = useState(false);
+  const [showPasswordCard, setShowPasswordCard] = useState(false);
 
   const [formData, setFormData] = useState<OnboardingData>({
     sport: "",
@@ -45,10 +47,14 @@ export default function OnboardingWizard() {
     goal: "",
   });
 
-//  Tab switching
+  //  Tab switching
   const handleNext = () => {
     setStep((prev) => Math.min(prev + 1, totalSteps));
-    console.log(formData)
+    if (step == 4) {
+      localStorage.setItem(USER_DATA, JSON.stringify(formData));
+    }
+
+    console.log(formData);
   };
   const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
 
@@ -137,9 +143,7 @@ export default function OnboardingWizard() {
                       id="customSport"
                       placeholder="e.g., Swimming, Boxing, Cricket..."
                       value={formData.sport}
-                      onChange={(e) =>
-                        updateField("sport", e.target.value)
-                      }
+                      onChange={(e) => updateField("sport", e.target.value)}
                       className="text-base py-6"
                     />
                   </div>
