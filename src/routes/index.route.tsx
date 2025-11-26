@@ -1,5 +1,5 @@
 
-  import { Onboarding } from '@/features/onboarding/Onboarding'
+import Onboarding from '@/features/onboarding/Onboarding'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
 const AppRoutes = () => {
