@@ -19,6 +19,7 @@ import { useState } from "react";
 import CTA from "./components/CTA";
 import { USER_DATA } from "@/lib/constants";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 // --- Types ---
 type OnboardingData = {
@@ -36,6 +37,7 @@ export default function OnboardingWizard() {
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
   const [start, setStart] = useState(false);
+  const navigate = useNavigate()
   const [formData, setFormData] = useState<OnboardingData>({
     sport: "",
     age: 25,
@@ -52,6 +54,7 @@ export default function OnboardingWizard() {
     if (step == 4) {
       localStorage.setItem(USER_DATA, JSON.stringify(formData));
       toast.success("Your data has been saved")
+      navigate("/dashboard")
     }
 
     console.log(formData);

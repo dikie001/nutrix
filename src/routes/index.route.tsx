@@ -1,15 +1,16 @@
-
-import Onboarding from '@/features/onboarding/Onboarding'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Onboarding from "@/features/onboarding/Onboarding";
+import Dashboard from "@/features/profile/Dashboard";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const AppRoutes = () => {
   return (
     <BrowserRouter>
-    <Routes>
-      <Route path='/onboarding' element={<Onboarding/>} />
-    </Routes>
+      <Routes>
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default AppRoutes
+export default AppRoutes;
