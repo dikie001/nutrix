@@ -1,36 +1,47 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Zap, Target, TrendingUp } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ArrowRight, Target, TrendingUp, Zap } from "lucide-react";
+import type { Dispatch, SetStateAction } from "react";
 
-export default function AthleteCTACard() {
+export default function CTA({
+  setStart,
+}: {
+  setStart: Dispatch<SetStateAction<boolean>>;
+}) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md overflow-hidden border-0 shadow-2xl">
-        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-8 text-white">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Zap className="h-6 w-6" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold">Athlete Fuel</h1>
+            <span className="text-lg font-bold">Athlete Fuel</span>
           </div>
-          <h2 className="text-3xl font-bold mb-3 leading-tight">
-            Train Smarter,
-            <br />
-            Perform Better
-          </h2>
-          <p className="text-emerald-50 text-lg">
+          <CardTitle className="text-3xl">
+            Train Smarter, Perform Better
+          </CardTitle>
+          <CardDescription className="text-base">
             Personalized nutrition plans designed for Kenyan athletes
-          </p>
-        </div>
+          </CardDescription>
+        </CardHeader>
 
-        <CardContent className="p-8 space-y-6">
+        <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <Target className="h-5 w-5 text-emerald-600" />
+              <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                <Target className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-base mb-1">Sport-Specific Plans</h3>
+                <h3 className="font-semibold text-base mb-1">
+                  Sport-Specific Plans
+                </h3>
                 <p className="text-sm text-muted-foreground">
                   Tailored nutrition for your discipline
                 </p>
@@ -38,8 +49,8 @@ export default function AthleteCTACard() {
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <TrendingUp className="h-5 w-5 text-emerald-600" />
+              <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                <TrendingUp className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="font-semibold text-base mb-1">Track Progress</h3>
@@ -50,8 +61,8 @@ export default function AthleteCTACard() {
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <Zap className="h-5 w-5 text-emerald-600" />
+              <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                <Zap className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="font-semibold text-base mb-1">Local Foods</h3>
@@ -62,12 +73,12 @@ export default function AthleteCTACard() {
             </div>
           </div>
 
-          <Button 
-            className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-lg"
-            onClick={() => alert("Starting onboarding...")}
+          <Button
+            className="w-full h-12 text-base"
+            onClick={() => setStart(true)}
           >
             Get Started
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
