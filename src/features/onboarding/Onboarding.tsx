@@ -17,7 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import CTA from "./components/CTA";
-import { USER_DATA } from "@/lib/constants";
+import { USER_DATA, USER_REGISTERED } from "@/lib/constants";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -37,7 +37,7 @@ export default function OnboardingWizard() {
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
   const [start, setStart] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<OnboardingData>({
     sport: "",
     age: 25,
@@ -53,8 +53,9 @@ export default function OnboardingWizard() {
     setStep((prev) => Math.min(prev + 1, totalSteps));
     if (step == 4) {
       localStorage.setItem(USER_DATA, JSON.stringify(formData));
-      toast.success("Your data has been saved")
-      navigate("/dashboard")
+      localStorage.setItem(USER_REGISTERED, "true");
+      toast.success("Your data has been saved");
+      navigate("/dashboard");
     }
 
     console.log(formData);
