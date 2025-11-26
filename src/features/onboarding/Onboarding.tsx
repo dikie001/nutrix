@@ -18,6 +18,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import CTA from "./components/CTA";
 import { USER_DATA } from "@/lib/constants";
+import { toast } from "sonner";
 
 // --- Types ---
 type OnboardingData = {
@@ -35,8 +36,6 @@ export default function OnboardingWizard() {
   const totalSteps = 4;
   const progress = (step / totalSteps) * 100;
   const [start, setStart] = useState(false);
-  const [showPasswordCard, setShowPasswordCard] = useState(false);
-
   const [formData, setFormData] = useState<OnboardingData>({
     sport: "",
     age: 25,
@@ -52,6 +51,7 @@ export default function OnboardingWizard() {
     setStep((prev) => Math.min(prev + 1, totalSteps));
     if (step == 4) {
       localStorage.setItem(USER_DATA, JSON.stringify(formData));
+      toast.success("Your data has been saved")
     }
 
     console.log(formData);
