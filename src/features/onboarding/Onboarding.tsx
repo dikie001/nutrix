@@ -1,117 +1,280 @@
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-
-// Icons from lucide-react (standard for Shadcn/Radix components)
-import { ChevronRight, Dumbbell, Zap, TrendingUp, Sun, Flame } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dumbbell, Utensils, Activity, ChevronLeft, ChevronRight, Trophy } from "lucide-react";
 
 // --- Types ---
-type ActivityLevel = "light" | "moderate" | "elite";
-type Goal = "maintain" | "gain" | "loss";
-
-interface ActivityGoalsScreenProps {
-  onNext: () => void;
-  onActivityChange: (level: ActivityLevel) => void;
-  onGoalChange: (goal: Goal) => void;
-  currentActivity: ActivityLevel | null;
-  currentGoal: Goal | null;
-}
-
-// --- Component ---
-const Onboarding: React.FC<ActivityGoalsScreenProps> = ({
-  onNext,
-  onActivityChange,
-  onGoalChange,
-  currentActivity,
-  currentGoal,
-}) => {
-
-  const isFormComplete = currentActivity !== null && currentGoal !== null;
-
-  return (
-    <div className="flex flex-col space-y-6 p-4 max-w-lg mx-auto">
-      {/* Progress Bar (from Screen 2) */}
-      <Progress value={60} className="w-full h-2" />
-
-      {/* Activity Level Selection */}
-      <Card>
-        <CardHeader className="p-4 pb-2">
-          <CardTitle>Activity Level</CardTitle>
-          <CardDescription>How intense is your training? (TDEE Multiplier)</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <ToggleGroup
-            type="single"
-            value={currentActivity || ""}
-            onValueChange={(value: string) => onActivityChange(value as ActivityLevel)}
-            className="grid grid-cols-3 gap-2 w-full"
-          >
-            <ToggleGroupItem value="light" aria-label="Light Activity" className="flex flex-col h-24 p-2">
-              <Sun className="h-6 w-6 text-yellow-500" />
-              <span className="mt-1 text-sm font-medium">Light</span>
-              <span className="text-xs text-muted-foreground">Casual</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="moderate" aria-label="Moderate Activity" className="flex flex-col h-24 p-2">
-              <Dumbbell className="h-6 w-6 text-green-500" />
-              <span className="mt-1 text-sm font-medium">Moderate</span>
-              <span className="text-xs text-muted-foreground">3-4x/week</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="elite" aria-label="Elite Activity" className="flex flex-col h-24 p-2">
-              <Zap className="h-6 w-6 text-red-500" />
-              <span className="mt-1 text-sm font-medium">Elite</span>
-              <span className="text-xs text-muted-foreground">Daily Training</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Goals Selection */}
-      <Card>
-        <CardHeader className="p-4 pb-2">
-          <CardTitle>Your Goal</CardTitle>
-          <CardDescription>What is your primary objective? (Macro Adjustment)</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 pt-0">
-          <ToggleGroup
-            type="single"
-            value={currentGoal || ""}
-            onValueChange={(value: string) => onGoalChange(value as Goal)}
-            className="grid grid-cols-3 gap-2 w-full"
-          >
-            <ToggleGroupItem value="maintain" aria-label="Maintain Weight" className="flex flex-col h-24 p-2">
-              <TrendingUp className="h-6 w-6 text-blue-500" />
-              <span className="mt-1 text-sm font-medium">Maintain</span>
-              <span className="text-xs text-muted-foreground">Balance</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="gain" aria-label="Muscle Gain" className="flex flex-col h-24 p-2">
-              <Dumbbell className="h-6 w-6 text-amber-500" />
-              <span className="mt-1 text-sm font-medium">Gain Muscle</span>
-              <span className="text-xs text-muted-foreground">Protein focus</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="loss" aria-label="Fat Loss" className="flex flex-col h-24 p-2">
-              <Flame className="h-6 w-6 text-pink-500" />
-              <span className="mt-1 text-sm font-medium">Lose Fat</span>
-              <span className="text-xs text-muted-foreground">Deficit focus</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </CardContent>
-      </Card>
-
-      {/* Navigation Button */}
-      <Button 
-        onClick={onNext} 
-        disabled={!isFormComplete}
-        className="w-full"
-      >
-        Continue to Preferences
-        <ChevronRight className="ml-2 h-4 w-4" />
-      </Button>
-    </div>
-  );
+type OnboardingData = {
+  sport: string;
+  age: number;
+  weight: number;
+  height: number;
+  trainingDays: string;
+  intensity: 'low' | 'moderate' | 'high';
+  foods: string[];
+  goal: string;
 };
 
-export default Onboarding;
+const KENYAN_FOODS = [
+  { id: 'ugali', label: 'Ugali' },
+  { id: 'sukuma', label: 'Sukuma Wiki' },
+  { id: 'omena', label: 'Omena' },
+  { id: 'nyama', label: 'Nyama Choma' },
+  { id: 'mursik', label: 'Mursik' },
+  { id: 'ngwaci', label: 'Sweet Potato (Ngwaci)' },
+  { id: 'githeri', label: 'Githeri' },
+];
+
+export default function OnboardingWizard() {
+  const [step, setStep] = useState(1);
+  const totalSteps = 5;
+  const progress = (step / totalSteps) * 100;
+
+  const [formData, setFormData] = useState<OnboardingData>({
+    sport: '',
+    age: 25,
+    weight: 60,
+    height: 170,
+    trainingDays: '3',
+    intensity: 'moderate',
+    foods: [],
+    goal: ''
+  });
+
+  const handleNext = () => setStep((prev) => Math.min(prev + 1, totalSteps));
+  const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  const updateField = (field: keyof OnboardingData, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const toggleFood = (foodId: string) => {
+    setFormData((prev) => {
+      const foods = prev.foods.includes(foodId)
+        ? prev.foods.filter((f) => f !== foodId)
+        : [...prev.foods, foodId];
+      return { ...prev, foods };
+    });
+  };
+
+  return (
+    <div className="max-w-md mx-auto h-screen flex flex-col bg-background text-foreground p-4">
+      {/* Header & Progress */}
+      <div className="mb-8 space-y-4 pt-4">
+        <div className="flex justify-between items-center text-sm font-medium text-muted-foreground">
+          <span>Step {step} of {totalSteps}</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <Progress value={progress} className="h-2" />
+      </div>
+
+      {/* Dynamic Content Area */}
+      <div className="flex-1 overflow-y-auto pb-20">
+        
+        {/* Step 1: Sport Profile */}
+        {step === 1 && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Your Discipline</h2>
+              <p className="text-muted-foreground">This defines your carb/protein ratios.</p>
+            </div>
+            <RadioGroup 
+              value={formData.sport} 
+              onValueChange={(val) => updateField('sport', val)} 
+              className="grid grid-cols-1 gap-4"
+            >
+              {[
+                { val: 'run_long', label: 'Long Distance', icon: '🏃🏿‍♂️' },
+                { val: 'sprints', label: 'Sprints', icon: '⚡' },
+                { val: 'rugby', label: 'Rugby 7s / 15s', icon: '🏉' },
+                { val: 'football', label: 'Football', icon: '⚽' },
+              ].map((sport) => (
+                <div key={sport.val}>
+                  <RadioGroupItem value={sport.val} id={sport.val} className="peer sr-only" />
+                  <Label
+                    htmlFor={sport.val}
+                    className="flex items-center justify-between p-4 border-2 rounded-xl cursor-pointer hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 transition-all"
+                  >
+                    <span className="font-semibold text-lg">{sport.label}</span>
+                    <span className="text-2xl">{sport.icon}</span>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
+
+        {/* Step 2: Biometrics */}
+        {step === 2 && (
+          <div className="space-y-8">
+             <div>
+              <h2 className="text-2xl font-bold tracking-tight">The Engine</h2>
+              <p className="text-muted-foreground">Calibrating your energy expenditure.</p>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between items-baseline">
+                <Label>Weight</Label>
+                <span className="text-2xl font-bold font-mono">{formData.weight} <span className="text-sm text-muted-foreground">kg</span></span>
+              </div>
+              <Slider 
+                value={[formData.weight]} 
+                min={40} max={120} step={1} 
+                onValueChange={(val) => updateField('weight', val[0])} 
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-baseline">
+                <Label>Height</Label>
+                <span className="text-2xl font-bold font-mono">{formData.height} <span className="text-sm text-muted-foreground">cm</span></span>
+              </div>
+              <Slider 
+                value={[formData.height]} 
+                min={140} max={210} step={1} 
+                onValueChange={(val) => updateField('height', val[0])} 
+              />
+            </div>
+
+             <div className="grid gap-2">
+                <Label htmlFor="age">Age</Label>
+                <Input 
+                  id="age" 
+                  type="number" 
+                  value={formData.age} 
+                  onChange={(e) => updateField('age', parseInt(e.target.value))}
+                  className="text-lg py-6"
+                />
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Intensity */}
+        {step === 3 && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Training Load</h2>
+              <p className="text-muted-foreground">How much fuel do you burn?</p>
+            </div>
+
+            <div className="space-y-2">
+                <Label>Weekly Sessions</Label>
+                <Select onValueChange={(val) => updateField('trainingDays', val)} defaultValue={formData.trainingDays}>
+                  <SelectTrigger className="w-full py-6 text-lg">
+                    <SelectValue placeholder="Select days" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[1,2,3,4,5,6,7].map(num => (
+                        <SelectItem key={num} value={num.toString()}>{num} Days / Week</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+            </div>
+
+            <div className="space-y-3 pt-4">
+                <Label>Session Intensity</Label>
+                <Tabs defaultValue="moderate" onValueChange={(val) => updateField('intensity', val)} className="w-full">
+                    <TabsList className="grid w-full grid-cols-3 h-12">
+                        <TabsTrigger value="low">Low</TabsTrigger>
+                        <TabsTrigger value="moderate">Mod</TabsTrigger>
+                        <TabsTrigger value="high">High</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                <p className="text-xs text-muted-foreground mt-2">
+                    {formData.intensity === 'high' ? 'Includes altitude training & competition pace.' : 'Standard aerobic or recovery sessions.'}
+                </p>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Local Diet */}
+        {step === 4 && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Your Fuel</h2>
+              <p className="text-muted-foreground">Select your regular staples.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-3">
+              {KENYAN_FOODS.map((food) => (
+                <div key={food.id} className="flex items-center space-x-3 border p-4 rounded-lg active:bg-accent/50 transition-colors">
+                  <Checkbox 
+                    id={food.id} 
+                    checked={formData.foods.includes(food.id)}
+                    onCheckedChange={() => toggleFood(food.id)}
+                  />
+                  <Label htmlFor={food.id} className="text-base flex-1 cursor-pointer font-medium">
+                    {food.label}
+                  </Label>
+                  <Utensils className="h-4 w-4 text-muted-foreground" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: Goal */}
+        {step === 5 && (
+            <div className="space-y-6">
+                 <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Current Goal</h2>
+                    <p className="text-muted-foreground">We'll adjust portions accordingly.</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                    {[
+                        { id: 'cut', title: 'Lean Out', desc: 'Maintain muscle, drop fat.' },
+                        { id: 'maintain', title: 'Maintain', desc: 'Peak performance weight.' },
+                        { id: 'bulk', title: 'Build Strength', desc: 'Caloric surplus for size.' },
+                        { id: 'race', title: 'Race Prep', desc: 'Carbo-loading phase.' },
+                    ].map((goal) => (
+                        <Card 
+                            key={goal.id} 
+                            className={`cursor-pointer transition-all ${formData.goal === goal.id ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-accent'}`}
+                            onClick={() => updateField('goal', goal.id)}
+                        >
+                            <CardContent className="flex items-center p-4 gap-4">
+                                <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+                                    <Trophy className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold">{goal.title}</h3>
+                                    <p className="text-sm text-muted-foreground">{goal.desc}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+        )}
+      </div>
+
+      {/* Footer Actions */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t flex gap-4 max-w-md mx-auto">
+        <Button 
+            variant="ghost" 
+            className="flex-1" 
+            onClick={handleBack}
+            disabled={step === 1}
+        >
+            <ChevronLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+        <Button 
+            className="flex-1" 
+            onClick={handleNext}
+        >
+            {step === totalSteps ? 'Generate Plan' : 'Next'} 
+            {step !== totalSteps && <ChevronRight className="ml-2 h-4 w-4" />}
+        </Button>
+      </div>
+    </div>
+  );
+}
