@@ -196,7 +196,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-700 font-medium">Motion Intensity</span>
               <span className="text-lg font-semibold text-gray-900">
-                {magnitude.toFixed(2)} m/s²
+                {magnitude} m/s²
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -213,22 +213,22 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-3">
               <div className="text-center p-3 bg-red-50 rounded-lg">
                 <div className="text-xs font-medium text-red-700 mb-1">X-Axis</div>
-                <div className="text-lg font-bold text-red-900">{motion.x.toFixed(2)}</div>
+                <div className="text-lg font-bold text-red-900">{motion.x}</div>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <div className="text-xs font-medium text-green-700 mb-1">Y-Axis</div>
-                <div className="text-lg font-bold text-green-900">{motion.y.toFixed(2)}</div>
+                <div className="text-lg font-bold text-green-900">{motion.y}</div>
               </div>
               <div className="text-center p-3 bg-blue-50 rounded-lg">
                 <div className="text-xs font-medium text-blue-700 mb-1">Z-Axis</div>
-                <div className="text-lg font-bold text-blue-900">{motion.z.toFixed(2)}</div>
+                <div className="text-lg font-bold text-blue-900">{motion.z}</div>
               </div>
             </div>
           </div>
 
           {/* Info Note */}
           <div className="text-xs text-gray-500 text-center pt-2 border-t">
-            Move your device to see activity detection in action
+            Testing testing, nutrix in action!!!!
           </div>
         </CardContent>
       </Card>
