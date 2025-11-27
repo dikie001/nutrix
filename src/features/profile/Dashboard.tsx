@@ -11,13 +11,11 @@ import {
   Flame,
   Sparkles,
   TrendingUp,
-  X,
-  Zap,
+  Zap
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingNavbar } from "../../components/Navbar";
-import AiChat from "../ai/AI";
 
 const data = {
   stats: {
@@ -61,7 +59,6 @@ const Dashboard = () => {
   const hydrationPercent =
     (data.stats.hydration / data.stats.hydrationGoal) * 100;
   const caloriePercent = (data.stats.calories / data.stats.calorieGoal) * 100;
-  const [showAiChat, setShowAiChat] = useState(false);
   const navigate = useNavigate();
 
   // Get the user location
@@ -83,7 +80,6 @@ const Dashboard = () => {
       <OnboardingNavbar currentLang="en" onLanguageChange={() => alert()} />
 
       {/* Main Content */}
-      {!showAiChat ? (
         <div className="max-w-7xl mx-auto space-y-4 pb-20">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2">
@@ -267,20 +263,7 @@ const Dashboard = () => {
             </Card>
           </div>
         </div>
-      ) : (
-        /* AI Chat Interface */
-        <div className="h-[calc(100vh-80px)] w-full flex flex-col relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-0 top-0 z-10"
-            onClick={() => setShowAiChat(false)}
-          >
-            <X className="h-5 w-5" />
-          </Button>
-          <AiChat />
-        </div>
-      )}
+     
 
       {/* Floating AI Action Button  */}
       <div className="sticky bottom-16 w-full flex justify-end px-2 z-50 pointer-events-none">

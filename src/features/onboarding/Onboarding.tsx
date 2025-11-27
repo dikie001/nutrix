@@ -27,6 +27,7 @@ type OnboardingData = {
   sport: string;
   age: number;
   name: string;
+  gender: "male" | "female" | "";
   location: UserLocation;
   weight: number;
   height: number;
@@ -47,6 +48,7 @@ export default function OnboardingWizard() {
     location: { latitude: 0, longitude: 0, address: "" },
     age: 25,
     weight: 60,
+    gender: "",
     height: 170,
     trainingDays: "4",
     intensity: "moderate",
@@ -165,17 +167,20 @@ export default function OnboardingWizard() {
 
             {/* Step 2: Body Stats */}
             {step === 2 && (
-              <div className="space-y-8">
+              <div className="space-y-4">
                 <div>
                   <h2 className="text-2xl font-bold">Body Stats</h2>
                   <p className="text-muted-foreground mt-1">
-                    Basic measurements
+                    Basic measurements 
                   </p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
+                
+
+                  {/* Weight Slider */}
                   <div>
-                    <div className="flex justify-between items-baseline mb-3">
+                    <div className="flex justify-between items-baseline mb-2">
                       <Label className="text-base">Weight</Label>
                       <span className="text-3xl font-bold">
                         {formData.weight}
@@ -194,8 +199,9 @@ export default function OnboardingWizard() {
                     />
                   </div>
 
+                  {/* Height Slider */}
                   <div>
-                    <div className="flex justify-between items-baseline mb-3">
+                    <div className="flex justify-between items-baseline mb-2">
                       <Label className="text-base">Height</Label>
                       <span className="text-3xl font-bold">
                         {formData.height}
@@ -214,6 +220,7 @@ export default function OnboardingWizard() {
                     />
                   </div>
 
+                  {/* Age Input */}
                   <div>
                     <Label htmlFor="age" className="text-base mb-2 block">
                       Age
@@ -228,10 +235,27 @@ export default function OnboardingWizard() {
                       className="text-2xl py-6 text-center font-bold"
                     />
                   </div>
+
+                    {/* Gender Select */}
+                  <div>
+                    <Label className="text-base mb-2 block">Gender</Label>
+                    <Select
+                      value={formData.gender}
+                      onValueChange={(val) => updateField("gender", val)}
+                    >
+                      <SelectTrigger className="w-full py-6 text-lg">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
             )}
-
             {/* Step 3: Training Schedule */}
             {step === 3 && (
               <div className="space-y-8">
