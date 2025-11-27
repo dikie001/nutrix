@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { OnboardingNavbar } from '@/components/Navbar';
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Check, Flame, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { OnboardingNavbar } from '@/components/Navbar';
+import { Check, Flame, Trophy } from "lucide-react";
+import { useState } from 'react';
 
 type Period = 'Morning' | 'Afternoon' | 'Evening';
 
