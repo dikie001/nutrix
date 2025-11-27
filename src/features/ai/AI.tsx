@@ -8,7 +8,7 @@ import { Bot, Send, Sparkles, User } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 // YOUR API KEY
-const API_KEY = "AIzaSyBDgkSdjadwqR-J9DgXuDoywirCTdJrIXs";
+const API_KEY = import.meta.env.VITE_GEMINI_API_URL
 
 interface UserData {
   sport: string;

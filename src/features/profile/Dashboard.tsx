@@ -1,280 +1,255 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button"; // Added Button
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { USER_DATA } from "@/lib/constants";
 import { getUserLocation } from "@/lib/getLocation";
 import {
   AlertCircle,
   Clock,
+  Coffee,
   Droplet,
   Flame,
+  MapPin,
   Sparkles,
+  Sun,
+  Moon,
   TrendingUp,
+  Utensils,
   Zap
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingNavbar } from "../../components/Navbar";
 
-const data = {
-  stats: {
-    energy: 7,
-    hydration: 1250,
-    hydrationGoal: 2500,
-    calories: 1450,
-    calorieGoal: 2200,
-  },
-  meals: [
-    {
-      id: "1",
-      name: "Oatmeal & Berries",
-      time: "08:00",
-      calories: 450,
-      type: "Breakfast",
-    },
-    {
-      id: "2",
-      name: "Grilled Chicken Salad",
-      time: "13:00",
-      calories: 600,
-      type: "Lunch",
-    },
-    {
-      id: "3",
-      name: "Protein Shake",
-      time: "16:00",
-      calories: 200,
-      type: "Snack",
-    },
-  ],
-  alerts: [
-    { id: "a1", level: "critical", message: "Protein intake low (-30g)" },
-    { id: "a2", level: "warning", message: "Hydration behind schedule" },
-    { id: "a3", level: "info", message: "Dinner planned for 19:00" },
-  ],
+// Helper to get time-based Kenyan meals
+const getDynamicMeals = () => {
+  const hour = new Date().getHours();
+  
+  if (hour < 11) {
+    return [
+      { id: "1", name: "Chai & Mahamri", time: "08:00", calories: 350, type: "Breakfast", icon: Coffee },
+      { id: "2", name: "Uji Power (Millet)", time: "10:30", calories: 180, type: "Snack", icon: Sun },
+    ];
+  } else if (hour < 16) {
+    return [
+      { id: "3", name: "Githeri Special", time: "13:00", calories: 550, type: "Lunch", icon: Utensils },
+      { id: "4", name: "Dawa (Ginger/Lemon)", time: "15:30", calories: 45, type: "Refreshment", icon: Droplet },
+    ];
+  } else {
+    return [
+      { id: "5", name: "Ugali & Sukuma Wiki", time: "19:00", calories: 600, type: "Dinner", icon: Moon },
+      { id: "6", name: "Nyama Choma", time: "20:30", calories: 400, type: "Late Bite", icon: Flame },
+    ];
+  }
+};
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Habari ya Asubuhi";
+  if (hour < 17) return "Habari ya Mchana";
+  return "Habari ya Jioni";
 };
 
 const Dashboard = () => {
-  const hydrationPercent =
-    (data.stats.hydration / data.stats.hydrationGoal) * 100;
-  const caloriePercent = (data.stats.calories / data.stats.calorieGoal) * 100;
   const navigate = useNavigate();
+  const [locationName, setLocationName] = useState("Nairobi, KE");
+  const [meals, setMeals] = useState(getDynamicMeals());
+  
+  // Static stats for demo
+  const stats = {
+    energy: 8,
+    hydration: 1450,
+    hydrationGoal: 2500,
+    calories: 1650,
+    calorieGoal: 2200,
+  };
 
-  // Get the user location
+  const hydrationPercent = (stats.hydration / stats.hydrationGoal) * 100;
+  const caloriePercent = (stats.calories / stats.calorieGoal) * 100;
+
   useEffect(() => {
-    const data = localStorage.getItem(USER_DATA);
-    const userData = data ? JSON.parse(data) : [];
-    const getLocation = async () => {
-      const location = await getUserLocation();
-      console.log(location);
-      const updatedUserData = { ...userData, location: location };
-      localStorage.setItem(USER_DATA, JSON.stringify(updatedUserData));
-    };
+    // Refresh meals based on time
+    setMeals(getDynamicMeals());
 
-    getLocation();
-  },[]);
+    const fetchLocation = async () => {
+      const data = localStorage.getItem(USER_DATA);
+      const userData = data ? JSON.parse(data) : {};
+      
+      try {
+        const loc = await getUserLocation();
+        setLocationName(loc?.city || "Kenya");
+        localStorage.setItem(USER_DATA, JSON.stringify({ ...userData, location: loc }));
+      } catch (e) {
+        console.log("Location fetch failed", e);
+      }
+    };
+    fetchLocation();
+  }, []);
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-linear-to-br relative from-background to-muted/20 p-2">
-      <OnboardingNavbar currentLang="en" onLanguageChange={() => alert()} />
+    <div className="min-h-screen bg-background relative pb-20">
+      <OnboardingNavbar currentLang="en" onLanguageChange={() => {}} />
 
-      {/* Main Content */}
-        <div className="max-w-7xl mx-auto space-y-4 pb-20">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2">
-            <div className="space-y-1">
-              <h1 className="text-2xl mt-4 font-bold tracking-tight">
-                Daily Vitality
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Track your wellness journey
-              </p>
+      <main className="container max-w-5xl mx-auto p-4 space-y-6">
+        {/* Personalized Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-primary">
+              {getGreeting()}, dikie.
+            </h1>
+            <div className="flex items-center gap-2 text-muted-foreground mt-1">
+              <MapPin className="h-4 w-4 text-primary/70" />
+              <span className="text-sm font-medium">{locationName}</span>
+              <span className="text-xs px-2 py-0.5 bg-muted rounded-full">
+                {new Date().toLocaleDateString("en-KE", { weekday: 'long', day: 'numeric', month: 'short' })}
+              </span>
             </div>
-            <Badge
-              variant="secondary"
-              className="w-fit text-xs sm:text-sm px-3 py-1.5"
-            >
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              })}
-            </Badge>
           </div>
+          
+          <Button onClick={() => navigate("/ai")} className="w-fit shadow-md">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Ask AI Assistant
+          </Button>
+        </div>
 
-          {/* KPI Cards */}
-          <div className="grid grid-cols-2 gap-2">
-            {/* Energy Card */}
-            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Energy Level
-                </CardTitle>
-                <div className="p-2 bg-yellow-500/10 rounded-lg">
-                  <Zap className="h-4 w-4 text-yellow-500" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl md:text-4xl font-bold">
-                    {data.stats.energy}
-                  </span>
-                  <span className="text-xl text-muted-foreground">/10</span>
-                </div>
-                <div className="flex items-center gap-1 mt-2">
-                  <TrendingUp className="h-3 w-3 text-green-500" />
-                  <p className="text-xs text-muted-foreground">
-                    Feeling good today
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Stats Grid */}
+        <div className="flex flex-col gap-4">
+          {/* Energy */}
+          <Card className="border-l-4 border-l-yellow-500 shadow-sm hover:shadow-md transition-all">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Vitality</CardTitle>
+              <Zap className="h-4 w-4 text-yellow-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.energy}</span>
+                <span className="text-sm text-muted-foreground">/10</span>
+              </div>
+              <div className="flex items-center gap-1 mt-2 text-green-600">
+                <TrendingUp className="h-3 w-3" />
+                <span className="text-xs font-medium">High energy today</span>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Hydration Card */}
-            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Hydration
-                </CardTitle>
-                <div className="p-2 bg-blue-500/10 rounded-lg">
-                  <Droplet className="h-4 w-4 text-blue-500" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl md:text-4xl font-bold">
-                    {data.stats.hydration}
-                  </span>
-                  <span className="text-sm text-muted-foreground">ml</span>
-                </div>
-                <div className="space-y-2 mt-3">
-                  <Progress value={hydrationPercent} className="h-2" />
-                  <p className="text-xs text-muted-foreground">
-                    {Math.round(hydrationPercent)}% of{" "}
-                    {data.stats.hydrationGoal}
-                    ml goal
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Hydration */}
+          <Card className="border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-all">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Hydration</CardTitle>
+              <Droplet className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.hydration}</span>
+                <span className="text-sm text-muted-foreground">ml</span>
+              </div>
+              <Progress value={hydrationPercent} className="h-2 mt-3 bg-blue-100" indicatorClassName="bg-blue-500" />
+              <p className="text-xs text-muted-foreground mt-2">
+                {Math.round(100 - hydrationPercent)}% to daily goal
+              </p>
+            </CardContent>
+          </Card>
 
-            {/* Calories Card */}
-            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg sm:col-span-2 lg:col-span-1">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Calories
-                </CardTitle>
-                <div className="p-2 bg-red-500/10 rounded-lg">
-                  <Flame className="h-4 w-4 text-red-500" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl md:text-4xl font-bold">
-                    {data.stats.calories}
-                  </span>
-                  <span className="text-sm text-muted-foreground">kcal</span>
-                </div>
-                <div className="space-y-2 mt-3">
-                  <Progress value={caloriePercent} className="h-2" />
-                  <p className="text-xs text-muted-foreground">
-                    {Math.round(caloriePercent)}% of {data.stats.calorieGoal}{" "}
-                    kcal goal
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Calories */}
+          <Card className="border-l-4 border-l-red-500 shadow-sm hover:shadow-md transition-all">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Calories</CardTitle>
+              <Flame className="h-4 w-4 text-red-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{stats.calories}</span>
+                <span className="text-sm text-muted-foreground">kcal</span>
+              </div>
+              <Progress value={caloriePercent} className="h-2 mt-3 bg-red-100" indicatorClassName="bg-red-500" />
+              <p className="text-xs text-muted-foreground mt-2">
+                Target: {stats.calorieGoal} kcal
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Main Content Grid */}
-          <div className="flex flex-col space-y-4">
-            {/* Timeline */}
-            <Card className="lg:col-span-2 border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg md:text-xl">
-                  Today's Timeline
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                {data.meals.map((meal) => (
-                  <div
-                    key={meal.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors group border border-transparent hover:border-border"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
-                        <Clock className="h-4 w-4 text-primary" />
+        <div className="flex flex-col gap-4">
+          {/* Dynamic Kenyan Meal Timeline */}
+          <Card className="lg:col-span-2 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Utensils className="h-5 w-5 text-primary" />
+                Suggested Meals
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {meals.map((meal) => (
+                  <div key={meal.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border hover:bg-muted/60 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <meal.icon className="h-5 w-5 text-primary" />
                       </div>
-                      <div className="space-y-0.5">
-                        <p className="text-sm font-semibold">{meal.name}</p>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Badge
-                            variant="outline"
-                            className="px-1.5 py-0 text-[10px]"
-                          >
-                            {meal.type}
-                          </Badge>
+                      <div>
+                        <h4 className="font-semibold">{meal.name}</h4>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                          <Clock className="h-3 w-3" />
                           <span>{meal.time}</span>
+                          <span className="text-primary/30">•</span>
+                          <span>{meal.type}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="mt-2 sm:mt-0 ml-[52px] sm:ml-0">
-                      <span className="text-sm font-bold">{meal.calories}</span>
-                      <span className="text-xs text-muted-foreground ml-1">
-                        kcal
-                      </span>
-                    </div>
+                    <Badge variant="secondary" className="font-mono">
+                      {meal.calories} kcal
+                    </Badge>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+                {meals.length === 0 && (
+                  <p className="text-muted-foreground text-sm">No meals scheduled for this time.</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Alerts */}
-            <Card className="lg:col-span-1 border-2">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg md:text-xl">Alerts</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {data.alerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${
-                      alert.level === "critical"
-                        ? "bg-red-500/5 border-l-red-500"
-                        : alert.level === "warning"
-                        ? "bg-orange-500/5 border-l-orange-500"
-                        : "bg-blue-500/5 border-l-blue-500"
-                    }`}
-                  >
-                    <AlertCircle
-                      className={`h-4 w-4 mt-0.5 shrink-0 ${
-                        alert.level === "critical"
-                          ? "text-red-500"
-                          : alert.level === "warning"
-                          ? "text-orange-500"
-                          : "text-blue-500"
-                      }`}
-                    />
-                    <p className="text-sm leading-relaxed">{alert.message}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
+          {/* Alerts / Insights */}
+          <Card className="h-fit shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Insights</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-3 p-3 rounded-md bg-orange-50 border border-orange-100 dark:bg-orange-900/20 dark:border-orange-900">
+                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-orange-900 dark:text-orange-100">Hydration Alert</p>
+                  <p className="text-xs text-orange-700 dark:text-orange-300">
+                    It's hot in {locationName.split(',')[0]}. Drink 500ml more water.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-3 p-3 rounded-md bg-green-50 border border-green-100 dark:bg-green-900/20 dark:border-green-900">
+                <Sparkles className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-green-900 dark:text-green-100">Great Progress</p>
+                  <p className="text-xs text-green-700 dark:text-green-300">
+                    You've hit your protein goal for lunch.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-     
+      </main>
 
-      {/* Floating AI Action Button  */}
-      <div className="sticky bottom-16 w-full flex justify-end px-2 z-50 pointer-events-none">
+      {/* Floating Action Button */}
+      {/* <div className="fixed bottom-6 right-6 z-50">
         <Button
           onClick={() => navigate("/ai")}
           size="icon"
-          className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 pointer-events-auto"
+          className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300"
         >
           <Sparkles className="h-6 w-6" />
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };
