@@ -5,6 +5,7 @@ import Onboarding from "@/features/onboarding/Onboarding";
 import ActivityTracker from "@/features/profile/ActivityTracker";
 import Dashboard from "@/features/profile/Dashboard";
 import Meals from "@/features/profile/Meals";
+import Payments from "@/features/profile/Payements";
 import Profile from "@/features/profile/Profile";
 import { Route, Routes } from "react-router-dom";
 
@@ -20,6 +21,7 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/meals" element={<Meals />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/payments" element={<Payments />} />
       </Routes>
     </>
   );
