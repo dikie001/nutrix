@@ -2,8 +2,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Bot, Send, Sparkles, User } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+
+// YOUR API KEY
+const API_KEY = "AIzaSyBDgkSdjadwqR-J9DgXuDoywirCTdJrIXs";
 
 interface Message {
   id: string;
@@ -24,10 +28,9 @@ export default function AiChatPage() {
     },
   ]);
   
-  // Ref for auto-scrolling
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom whenever messages change
+  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -37,6 +40,7 @@ export default function AiChatPage() {
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    // 1. Add User Message
     const userMsg: Message = { 
       id: Date.now().toString(), 
       sender: "user", 
@@ -49,26 +53,28 @@ export default function AiChatPage() {
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input })
+      // 2. Call Google Gemini directly from Frontend
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        systemInstruction: "You are Coach Kiptum, a Kenyan running coach. You are helpful, energetic, and knowledgeable about athletics, recovery, and Kenyan cuisine. Provide top tier recomendations for an efficient workout plan. Always advice the use on  Keep answers concise. "
       });
+
+      const result = await model.generateContent(input);
+      const response = await result.response;
+      const text = response.text();
       
-      if (!res.ok) throw new Error("Failed to fetch");
-      
-      const data = await res.json();
-      
+      // 3. Add Bot Message
       const botMsg: Message = { 
         id: (Date.now() + 1).toString(), 
         sender: "bot", 
-        text: data.reply, 
+        text: text, 
         timestamp: new Date() 
       };
       
       setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
-        console.log(error)
+      console.error(error);
       const errorMsg: Message = { 
         id: (Date.now() + 1).toString(), 
         sender: "bot", 
@@ -88,11 +94,10 @@ export default function AiChatPage() {
   };
 
   return (
-    // h-[100dvh] ensures it takes full height on mobile browsers including address bar area
     <div className="flex flex-col h-dvh mt-4 bg-background w-full max-w-md mx-auto md:max-w-4xl border-x shadow-sm">
       
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur upports-backdrop-filter:bg-background/60 sticky top-0 z-10">
+      <header className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border">
             <AvatarImage src="/coach-avatar.png" alt="Coach" />
@@ -121,7 +126,6 @@ export default function AiChatPage() {
                 msg.sender === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              {/* Bot Avatar */}
               {msg.sender === "bot" && (
                 <Avatar className="h-8 w-8 mt-1 hidden sm:flex">
                   <AvatarFallback className="bg-primary/10 text-primary text-xs">CK</AvatarFallback>
@@ -147,7 +151,6 @@ export default function AiChatPage() {
                 </span>
               </div>
 
-              {/* User Avatar */}
               {msg.sender === "user" && (
                 <Avatar className="h-8 w-8 mt-1 hidden sm:flex">
                   <AvatarFallback className="bg-muted text-muted-foreground">
@@ -158,7 +161,6 @@ export default function AiChatPage() {
             </div>
           ))}
           
-          {/* Loading Indicator */}
           {isLoading && (
             <div className="flex gap-2 justify-start items-center p-2">
               <Avatar className="h-8 w-8 hidden sm:flex">
