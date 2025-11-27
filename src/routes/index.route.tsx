@@ -5,6 +5,7 @@ import Onboarding from "@/features/onboarding/Onboarding";
 import ActivityTracker from "@/features/profile/ActivityTracker";
 import Dashboard from "@/features/profile/Dashboard";
 import Meals from "@/features/profile/Meals";
+import Profile from "@/features/profile/Profile";
 import { Route, Routes } from "react-router-dom";
 
 const AppRoutes = () => {
@@ -18,6 +19,7 @@ const AppRoutes = () => {
         <Route path="/create-password" element={<CreatePassword />} />
         <Route path="/login" element={<Login />} />
         <Route path="/meals" element={<Meals />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );

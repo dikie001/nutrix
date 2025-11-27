@@ -84,7 +84,7 @@ const Dashboard = () => {
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2">
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+              <h1 className="text-2xl mt-4 font-bold tracking-tight">
                 Daily Vitality
               </h1>
               <p className="text-sm text-muted-foreground">

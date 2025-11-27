@@ -8,6 +8,7 @@ const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const excludedRoutes = ["/login", "/ai", "/dashboard", "/activity-tracker","/contact", "/create-password", "/meals", "/profile"]; // routes to ignore
+  
   // Sense movement
   useEffect(() => {
     const handleMotion = (event: DeviceMotionEvent) => {

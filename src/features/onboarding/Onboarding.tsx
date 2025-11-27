@@ -339,7 +339,7 @@ export default function OnboardingWizard() {
                     },
                     {
                       id: "maintain",
-                      title: "Maintain",
+                      title: "Maintain weight",
                       desc: "Stay at current weight",
                       icon: "⚖️",
                     },
@@ -351,7 +351,7 @@ export default function OnboardingWizard() {
                     },
                     {
                       id: "perform",
-                      title: "Performance",
+                      title: "Optimize Performance",
                       desc: "Optimize for competition",
                       icon: "🏆",
                     },

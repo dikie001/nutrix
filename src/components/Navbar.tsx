@@ -144,7 +144,7 @@ export function OnboardingNavbar({
           )}
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 hover:opacity-90">
+          <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90">
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
               <span className="text-primary-foreground font-bold text-sm">N</span>
             </div>
