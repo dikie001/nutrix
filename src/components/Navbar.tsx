@@ -140,8 +140,8 @@ export function OnboardingNavbar({
     location.pathname === "/" || location.pathname === "/dashboard";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="flex h-14 items-center justify-between px-4 max-w-7xl mx-auto">
+    <nav className="sticky top-0 z-50 w-full  border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+      <div className="flex h-14 items-center justify-between mx-auto">
         {/* Left Section: Back Button & Logo */}
         <div className="flex items-center gap-1">
           {/* Back Button - Conditional Rendering */}
@@ -209,7 +209,7 @@ export function OnboardingNavbar({
               </Button>
             </DialogTrigger>
 
-            <DialogContent className="w-[380px] p-0 gap-0 flex flex-col h-[80vh] sm:h-auto">
+            <DialogContent className="w-[380px] p-0 gap-0 flex flex-col  h-auto">
               {/* Menu Header */}
               <DialogHeader className="p-6 border-b bg-muted/10 text-left flex flex-row items-center gap-4 space-y-0">
                 <Avatar>
