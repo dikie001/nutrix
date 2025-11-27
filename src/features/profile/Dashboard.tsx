@@ -2,23 +2,49 @@ import { useEffect, useState, useRef } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Activity, TrendingUp, User } from "lucide-react";
 
+interface MotionData {
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface MotionHistoryItem {
+  mag: number;
+  time: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
+type ActivityType = 
+  | "Initializing..." 
+  | "Calibrating..." 
+  | "At Rest" 
+  | "Walking" 
+  | "Running" 
+  | "Jumping" 
+  | "Strenuous Activity" 
+  | "Light Movement"
+  | "Permission Denied"
+  | "Permission Error";
+
 export default function Dashboard() {
-  const [motion, setMotion] = useState({ x: 0, y: 0, z: 0 });
-  const [activity, setActivity] = useState("Initializing...");
-  const [magnitude, setMagnitude] = useState(0);
-  const [stepCount, setStepCount] = useState(0);
+  const [motion, setMotion] = useState<MotionData>({ x: 0, y: 0, z: 0 });
+  const [activity, setActivity] = useState<ActivityType>("Initializing...");
+  const [magnitude, setMagnitude] = useState<number>(0);
+  const [stepCount, setStepCount] = useState<number>(0);
   
-  const motionHistory = useRef([]);
-  const lastPeakTime = useRef(0);
+  const motionHistory = useRef<MotionHistoryItem[]>([]);
+  const lastPeakTime = useRef<number>(0);
 
   useEffect(() => {
-    const handleMotion = (event) => {
+    const handleMotion = (event: DeviceMotionEvent) => {
       const { x, y, z } = event.acceleration || { x: 0, y: 0, z: 0 };
       
       // Handle null values
-      const accelX = x || 0;
-      const accelY = y || 0;
-      const accelZ = z || 0;
+      const accelX = x ?? 0;
+      const accelY = y ?? 0;
+      const accelZ = z ?? 0;
       
       setMotion({ x: accelX, y: accelY, z: accelZ });
       
@@ -36,7 +62,7 @@ export default function Dashboard() {
       classifyActivity(mag, motionHistory.current);
     };
 
-    const classifyActivity = (currentMag, history) => {
+    const classifyActivity = (currentMag: number, history: MotionHistoryItem[]) => {
       if (history.length < 10) {
         setActivity("Calibrating...");
         return;
@@ -80,7 +106,12 @@ export default function Dashboard() {
     };
 
     const init = async () => {
-      const DME = DeviceMotionEvent;
+      // Type assertion for iOS permission API
+      type DeviceMotionEventWithPermission = typeof DeviceMotionEvent & {
+        requestPermission?: () => Promise<'granted' | 'denied'>;
+      };
+
+      const DME = DeviceMotionEvent as DeviceMotionEventWithPermission;
 
       if (typeof DME?.requestPermission === "function") {
         try {
@@ -103,7 +134,7 @@ export default function Dashboard() {
     return () => window.removeEventListener("devicemotion", handleMotion);
   }, []);
 
-  const getActivityColor = () => {
+  const getActivityColor = (): string => {
     switch (activity) {
       case "At Rest": return "text-blue-600";
       case "Walking": return "text-green-600";
@@ -114,7 +145,7 @@ export default function Dashboard() {
     }
   };
 
-  const getActivityIcon = () => {
+  const getActivityIcon = (): JSX.Element => {
     switch (activity) {
       case "Running":
       case "Strenuous Activity":
