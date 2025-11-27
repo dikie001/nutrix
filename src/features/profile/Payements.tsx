@@ -1,3 +1,4 @@
+import { OnboardingNavbar } from "@/components/Navbar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,14 +37,15 @@ export default function Payments() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/30 py-10 overflow-y-auto  px-4  font-sans">
-      <div className=" mx-auto space-y-8">
+    <div className="min-h-screen bg-muted/30 overflow-y-auto flex flex-col mt-4  font-sans">
+      <OnboardingNavbar currentLang="en" onLanguageChange={() => {}} />
+      <div className=" mx-auto space-y-8 p-4">
         
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Upgrade your Experience</h1>
+          <h1 className="text-2xl font-bold tracking-tight mt-2 ">Upgrade your Experience</h1>
           <p className="text-muted-foreground">Choose the perfect plan for your health journey.</p>
-        </div>
+        </div> 
 
         {/* Main Grid */}
         <div className="flex flex-col gap-4">
@@ -101,14 +103,16 @@ export default function Payments() {
                     <span className="text-base font-normal text-amber-900/60">{plans.premium.period}</span>
                   </div>
                   <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-600" /> <span className="text-foreground">Realtime analysis</span></li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-600" /> <span className="text-foreground">Advanced Nutrients</span></li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-600" /> <span className="text-foreground">Unlimited History</span></li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-600" /> <span className="text-foreground">Priority Support</span></li>
                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-amber-600" /> <span className="text-foreground">Export Data</span></li>
+                    
                   </ul>
                 </CardContent>
                 {/* Gold Gradient Overlay */}
-                <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-amber-50/50 via-transparent to-transparent opacity-50" />
+                <div className="absolute inset-0 pointer-events-none bg-linear-to-tr from-amber-50/50 via-transparent to-transparent opacity-50" />
               </Card>
             </div>
           </div>
@@ -182,7 +186,7 @@ export default function Payments() {
                 <Button 
                   className={`w-full h-12 text-base font-semibold shadow-md transition-all
                     ${selectedPlan === 'premium' 
-                      ? "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-500 text-amber-950 hover:from-amber-400 hover:to-amber-400" 
+                      ? "bg-linear-to-r from-amber-500 via-yellow-500 to-amber-500 text-amber-950 hover:from-amber-400 hover:to-amber-400" 
                       : ""
                     }
                   `}
