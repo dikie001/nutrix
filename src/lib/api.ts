@@ -1,0 +1,12 @@
+// src/lib/axios.ts
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "backend-url",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export default api;
