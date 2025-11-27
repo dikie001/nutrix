@@ -1,35 +1,35 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useState } from "react";
-import { OnboardingNavbar } from "../../components/Navbar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import {
-  User,
-  MapPin,
-  Ruler,
-  Weight,
-  Dumbbell,
-  CalendarDays,
-  Edit2,
-  Save,
-  X,
-  Activity,
-  Target,
-} from "lucide-react";
-import { toast } from "sonner";
 import { USER_DATA } from "@/lib/constants";
+import {
+    Activity,
+    CalendarDays,
+    Dumbbell,
+    Edit2,
+    MapPin,
+    Ruler,
+    Save,
+    Target,
+    User,
+    Weight,
+    X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { OnboardingNavbar } from "../../components/Navbar";
 
 const STORAGE_KEY = "user_profile_data";
 
