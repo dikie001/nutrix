@@ -1,8 +1,10 @@
 import AiChat from "@/features/ai/AI";
 import CreatePassword from "@/features/onboarding/components/CreatePassword";
+import Login from "@/features/onboarding/components/Login";
 import Onboarding from "@/features/onboarding/Onboarding";
 import ActivityTracker from "@/features/profile/ActivityTracker";
 import Dashboard from "@/features/profile/Dashboard";
+import Meals from "@/features/profile/Meals";
 import { Route, Routes } from "react-router-dom";
 
 const AppRoutes = () => {
@@ -14,6 +16,8 @@ const AppRoutes = () => {
         <Route path="/activity-tracker" element={<ActivityTracker />} />
         <Route path="/ai" element={<AiChat />} />
         <Route path="/create-password" element={<CreatePassword />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/meals" element={<Meals />} />
       </Routes>
     </>
   );

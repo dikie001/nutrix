@@ -7,7 +7,7 @@ import AppRoutes from "./routes/index.route";
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const excludedRoutes = ["/login", "/ai", "/dashboard", "/activity-tracker", "/create-password"]; // routes to ignore
+  const excludedRoutes = ["/login", "/ai", "/dashboard", "/activity-tracker", "/create-password", "/meals"]; // routes to ignore
   // Sense movement
   useEffect(() => {
     const handleMotion = (event: DeviceMotionEvent) => {
@@ -27,7 +27,7 @@ const App = () => {
     const exists = localStorage.getItem(USER_REGISTERED) !== null;
 
     if (exists) {
-      navigate("/dashboard");
+      navigate("/login");
     } else {
       navigate("/onboarding");
     }
