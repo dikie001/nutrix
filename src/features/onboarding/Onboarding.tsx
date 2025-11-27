@@ -171,13 +171,11 @@ export default function OnboardingWizard() {
                 <div>
                   <h2 className="text-2xl font-bold">Body Stats</h2>
                   <p className="text-muted-foreground mt-1">
-                    Basic measurements 
+                    Basic measurements
                   </p>
                 </div>
 
                 <div className="space-y-4">
-                
-
                   {/* Weight Slider */}
                   <div>
                     <div className="flex justify-between items-baseline mb-2">
@@ -236,7 +234,7 @@ export default function OnboardingWizard() {
                     />
                   </div>
 
-                    {/* Gender Select */}
+                  {/* Gender Select */}
                   <div>
                     <Label className="text-base mb-2 block">Gender</Label>
                     <Select
@@ -377,8 +375,22 @@ export default function OnboardingWizard() {
                     </Card>
                   ))}
                 </div>
+                     <label className="flex items-center gap-2 pt-2">
+              <Input type="checkbox" className="h-4 w-4 cursor-pointer" />
+              <span className="text-sm">
+                I agree to the{" "}
+                <a href="/terms" className="underline cursor-pointer">
+                  Terms & Conditions
+                </a>
+                {" and "}  
+                <a href="/privacy" className="underline cursor-pointer">
+                  Privacy Policy
+                </a>
+              </span>
+            </label>
               </div>
             )}
+       
           </div>
 
           {/* Footer Navigation */}

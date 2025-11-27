@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect } from "react";
 import {
-  BookOpen,
-  Lock,
-  CreditCard,
-  User,
-  Check,
-  Loader2,
-  RefreshCcw,
+    BookOpen,
+    Check,
+    CreditCard,
+    Loader2,
+    Lock,
+    RefreshCcw,
+    User,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 // --- Types ---
 interface Magazine {
