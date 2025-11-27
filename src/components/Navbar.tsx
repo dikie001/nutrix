@@ -77,6 +77,11 @@ const MENU_ITEMS: { title: string; items: NavItem[] }[] = [
         icon: Activity, 
         to: "/activity-tracker", 
         variant: "premium" 
+      },    { 
+        label: "Magazines", 
+        icon: Activity, 
+        to: "/magazines", 
+        variant: "premium" 
       },
     ],
   },
@@ -107,7 +112,7 @@ const MenuItem = ({
           }
           ${
             isPremium
-              ? "bg-linear-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 font-bold shadow-md shadow-amber-500/20 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] border-yellow-400/50 bg-size-[200%_auto] hover:bg-right transition-[background-position,transform,shadow]"
+              ? "bg-linear-to-r mb-4 from-amber-500 via-yellow-400 to-amber-500 text-amber-950 font-bold shadow-md shadow-amber-500/20 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] border-yellow-400/50 bg-size-[200%_auto] hover:bg-right transition-[background-position,transform,shadow]"
               : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
           }
         `}

@@ -11,6 +11,7 @@ const App = () => {
   const excludedRoutes = [
     "/login",
     "/ai",
+    "/magazines",
     "/dashboard",
     "/payments",
     "/activity-tracker",
