@@ -121,6 +121,7 @@ export default function Dashboard() {
             return;
           }
         } catch (err) {
+          console.log(err)
           setActivity("Permission Error");
           return;
         }
@@ -145,7 +146,7 @@ export default function Dashboard() {
     }
   };
 
-  const getActivityIcon = (): JSX.Element => {
+  const getActivityIcon = () => {
     switch (activity) {
       case "Running":
       case "Strenuous Activity":
