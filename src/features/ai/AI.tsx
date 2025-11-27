@@ -1,13 +1,31 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { USER_DATA } from "@/lib/constants";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { Bot, Send, Sparkles, User } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { Bot, Send, Sparkles, User } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 // YOUR API KEY
 const API_KEY = "AIzaSyBDgkSdjadwqR-J9DgXuDoywirCTdJrIXs";
+
+interface UserData {
+  sport: string;
+  name: string;
+  location: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  };
+  age: number;
+  weight: number;
+  gender: string;
+  height: number;
+  trainingDays: string;
+  intensity: string;
+  goal: string;
+}
 
 interface Message {
   id: string;
@@ -19,15 +37,16 @@ interface Message {
 export default function AiChatPage() {
   const [input, setInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [data, setData] = useState<UserData | null>(null);
   const [messages, setMessages] = useState<Message[]>([
-    { 
-      id: '1', 
-      sender: "bot", 
-      text: "Habari! I am Coach Kiptum. Ask me about recovery, local food, or your training schedule.", 
-      timestamp: new Date() 
+    {
+      id: "1",
+      sender: "bot",
+      text: "Habari! I am Coach Kiptum. Ask me about recovery, local food, or your training schedule.",
+      timestamp: new Date(),
     },
   ]);
-  
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll
@@ -37,17 +56,24 @@ export default function AiChatPage() {
     }
   }, [messages, isLoading]);
 
+  // Get user data from localstorage
+  useEffect(() => {
+    const userData = localStorage.getItem(USER_DATA);
+    const parsedData = userData ? JSON.parse(userData) : [];
+    setData(parsedData);
+  }, []);
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     // 1. Add User Message
-    const userMsg: Message = { 
-      id: Date.now().toString(), 
-      sender: "user", 
-      text: input, 
-      timestamp: new Date() 
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      sender: "user",
+      text: input,
+      timestamp: new Date(),
     };
-    
+
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsLoading(true);
@@ -55,31 +81,50 @@ export default function AiChatPage() {
     try {
       // 2. Call Google Gemini directly from Frontend
       const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ 
+      const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
-        systemInstruction: "You are Coach Kiptum, a Kenyan running coach. You are helpful, energetic, and knowledgeable about athletics, recovery, and Kenyan cuisine. Provide top tier recomendations for an efficient workout plan. Always advice the use on  Keep answers concise. "
+        systemInstruction: `You are Coach Kiptum, a Kenyan running coach. You are helpful, energetic, and knowledgeable about athletics, recovery, and Kenyan cuisine.
+
+Your Goal: Provide top-tier recommendations for an efficient workout plan and a nutrition strategy.
+ 
+Specific Instructions:
+1. Base nutritional advice strictly on ingredients available in the user's specific location: ${
+          data?.location.address
+        }.
+2. Adjust caloric and macro recommendations to match their goal of "${
+          data?.goal
+        }" and current weight of ${data?.weight}kg.
+3. Keep answers concise.
+
+Athlete Profile:
+- Name: ${data?.name || "Athlete"}
+- Sport: ${data?.sport}
+- Location: ${data?.location.address}
+- Stats: ${data?.age} years old, ${data?.weight}kg, ${data?.height}cm
+- Intensity: ${data?.intensity}
+- Training Frequency: ${data?.trainingDays} days/week`,
       });
 
       const result = await model.generateContent(input);
       const response = await result.response;
       const text = response.text();
-      
+
       // 3. Add Bot Message
-      const botMsg: Message = { 
-        id: (Date.now() + 1).toString(), 
-        sender: "bot", 
-        text: text, 
-        timestamp: new Date() 
+      const botMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: "bot",
+        text: text,
+        timestamp: new Date(),
       };
-      
+
       setMessages((prev) => [...prev, botMsg]);
     } catch (error) {
       console.error(error);
-      const errorMsg: Message = { 
-        id: (Date.now() + 1).toString(), 
-        sender: "bot", 
-        text: "Sorry, I'm having trouble connecting to the network right now.", 
-        timestamp: new Date() 
+      const errorMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: "bot",
+        text: "Sorry, I'm having trouble connecting to the network right now.",
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -88,15 +133,14 @@ export default function AiChatPage() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       sendMessage();
     }
   };
 
   return (
-    <div className="flex flex-col h-dvh mt-4 bg-background w-full max-w-md mx-auto md:max-w-4xl border-x shadow-sm">
-      
-      {/* Header */}
+    <div className="flex flex-col min-h-screen mt-4 overflow-y-auto bg-background w-full h-full mx-auto shadow-sm">
+      {/* Header */}  
       <header className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border">
@@ -106,8 +150,12 @@ export default function AiChatPage() {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <h1 className="text-sm font-semibold leading-none tracking-tight">Coach Kiptum</h1>
-            <span className="text-xs text-muted-foreground mt-1">Always active</span>
+            <h1 className="text-sm font-semibold leading-none tracking-tight">
+              Coach Kiptum
+            </h1>
+            <span className="text-xs text-muted-foreground mt-1">
+              Always active
+            </span>
           </div>
         </div>
         <Button variant="ghost" size="icon" className="text-muted-foreground">
@@ -128,7 +176,9 @@ export default function AiChatPage() {
             >
               {msg.sender === "bot" && (
                 <Avatar className="h-8 w-8 mt-1 hidden sm:flex">
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">CK</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    CK
+                  </AvatarFallback>
                 </Avatar>
               )}
 
@@ -147,7 +197,10 @@ export default function AiChatPage() {
                   {msg.text}
                 </div>
                 <span className="text-[10px] text-muted-foreground mt-1 px-1">
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </div>
 
@@ -160,11 +213,13 @@ export default function AiChatPage() {
               )}
             </div>
           ))}
-          
+
           {isLoading && (
             <div className="flex gap-2 justify-start items-center p-2">
               <Avatar className="h-8 w-8 hidden sm:flex">
-                 <AvatarFallback className="bg-primary/10 text-primary text-xs">CK</AvatarFallback>
+                <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                  CK
+                </AvatarFallback>
               </Avatar>
               <div className="bg-muted px-4 py-3 rounded-2xl rounded-tl-none border">
                 <div className="flex gap-1">
@@ -190,8 +245,8 @@ export default function AiChatPage() {
             disabled={isLoading}
             className="flex-1 min-h-11 bg-background"
           />
-          <Button 
-            onClick={sendMessage} 
+          <Button
+            onClick={sendMessage}
             disabled={isLoading || !input.trim()}
             size="icon"
             className="h-11 w-11 shrink-0 rounded-full"
@@ -206,7 +261,6 @@ export default function AiChatPage() {
           </p>
         </div>
       </div>
-
     </div>
   );
 }

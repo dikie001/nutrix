@@ -7,8 +7,19 @@ import AppRoutes from "./routes/index.route";
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const excludedRoutes = ["/login", "/ai", "/dashboard", "/payments", "/activity-tracker","/contact", "/create-password", "/meals", "/profile"]; // routes to ignore
-  
+
+  const excludedRoutes = [
+    "/login",
+    "/ai",
+    "/dashboard",
+    "/payments",
+    "/activity-tracker",
+    "/contact",
+    "/create-password",
+    "/meals",
+    "/profile",
+  ];
+
   // Sense movement
   useEffect(() => {
     const handleMotion = (event: DeviceMotionEvent) => {
@@ -17,7 +28,6 @@ const App = () => {
     };
 
     window.addEventListener("devicemotion", handleMotion);
-
     return () => window.removeEventListener("devicemotion", handleMotion);
   }, []);
 
@@ -35,11 +45,19 @@ const App = () => {
   }, [location.pathname, navigate]);
 
   return (
-    <div className="md:w-[375px] md:h-[667px] mx-auto md:my-8 flex flex-col bg-background text-foreground rounded-3xl md:border-4 md:border-gray-400 lg:shadow-lg relative overflow-hidden">
-      {/*mobile notch */}
-      <div className="absolute hidden lg:block top-0 z-60 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl"></div>
-      <AppRoutes />
-      <Toaster richColors position="top-center" />
+    <div className="w-full h-screen flex justify-center items-center bg-background text-foreground">
+      <div className="relative w-[375px] h-[667px] rounded-3xl border border-gray-400 shadow-lg overflow-hidden">
+
+        {/* mobile notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl z-55 hidden lg:block"></div>
+
+        {/* main app */}
+        <div className="absolute inset-0 overflow-x-hidden">
+          <AppRoutes />
+          <Toaster richColors position="top-center" />
+        </div>
+
+      </div>
     </div>
   );
 };
