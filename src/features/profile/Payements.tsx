@@ -39,7 +39,7 @@ export default function Payments() {
   return (
     <div className="min-h-screen bg-muted/30 overflow-y-auto flex flex-col mt-4  font-sans">
       <OnboardingNavbar currentLang="en" onLanguageChange={() => {}} />
-      <div className=" mx-auto space-y-8 p-4">
+      <div className=" mx-auto space-y-8 p-2 mb-8 ">
         
         {/* Header */}
         <div className="text-center space-y-2">
@@ -182,7 +182,7 @@ export default function Payments() {
                 </Tabs>
 
               </CardContent>
-              <CardFooter className="flex flex-col gap-4 bg-muted/20 pt-6">
+              <CardFooter className="flex flex-col pb-18 gap-4 bg-muted/20 pt-6  ">
                 <Button 
                   className={`w-full h-12 text-base font-semibold shadow-md transition-all
                     ${selectedPlan === 'premium' 
