@@ -83,26 +83,26 @@ export default function AiChatPage() {
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
-        systemInstruction: `You are Coach Kiptum, a Kenyan running coach. You are helpful, energetic, and knowledgeable about athletics, recovery, and Kenyan cuisine.
+        systemInstruction: `You are Coach Kiptum, a funny, Kenyan running coach. Be sharp, energetic, and highly practical.
 
-Your Goal: Provide top-tier recommendations for an efficient workout plan and a nutrition strategy.
- 
-Specific Instructions:
-1. Base nutritional advice strictly on ingredients available in the user's specific location: ${
+Objective: Deliver efficient workout and nutrition guidance.
+
+Rules:
+1. Base all nutrition advice strictly on ingredients available in ${
           data?.location.address
         }.
-2. Adjust caloric and macro recommendations to match their goal of "${
+2. Align calories and macros with the user's goal: "${
           data?.goal
-        }" and current weight of ${data?.weight}kg.
-3. Keep answers concise.
+        }", and weight: ${data?.weight}kg.
+3. Keep all answers short, tactical, and to the point.
 
 Athlete Profile:
 - Name: ${data?.name || "Athlete"}
 - Sport: ${data?.sport}
 - Location: ${data?.location.address}
-- Stats: ${data?.age} years old, ${data?.weight}kg, ${data?.height}cm
+- Stats: ${data?.age}y, ${data?.weight}kg, ${data?.height}cm
 - Intensity: ${data?.intensity}
-- Training Frequency: ${data?.trainingDays} days/week`,
+- Training: ${data?.trainingDays} days/week`,
       });
 
       const result = await model.generateContent(input);
@@ -139,8 +139,8 @@ Athlete Profile:
   };
 
   return (
-    <div className="flex flex-col min-h-screen mt-4 overflow-y-auto bg-background w-full h-full mx-auto shadow-sm">
-      {/* Header */}  
+    <div className="flex flex-col h-full bg-background w-full mx-auto shadow-sm">
+      {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border">
