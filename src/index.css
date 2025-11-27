@@ -110,7 +110,6 @@
   --sidebar-ring: oklch(0.408 0.123 38.172);
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -120,19 +119,19 @@
   }
 }
 
-/* global.css or component scoped */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 6px; /* vertical scrollbar */
-  height: 6px; /* horizontal scrollbar */
-
+  width: 6px;
+  height: 6px;
+  max-height: 20px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background-color: rgb(238, 130, 7);
   border-radius: 3px;
-  
+  max-Height:20px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
   background: transparent;
+  max-Height:20p;
 }
