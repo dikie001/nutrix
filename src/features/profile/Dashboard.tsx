@@ -1,32 +1,58 @@
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
-export default function StorageStatus() {
-  const [exists, setExists] = useState<boolean | null>(null);
+export default function Dashboard() {
+  const [motion, setMotion] = useState<any>({ x: 0, y: 0, z: 0 });
 
   useEffect(() => {
-    const keyExists = localStorage.getItem("yourKey") !== null;
-    setExists(keyExists);
+    const handleMotion = (event: DeviceMotionEvent) => {
+      const { x, y, z } = event.acceleration || { x: 0, y: 0, z: 0 };
+      setMotion({ x, y, z });
+    };
+
+    // iOS requires permission
+    const init = async () => {
+      const DME = DeviceMotionEvent as any;
+
+      if (typeof DME?.requestPermission === "function") {
+        const res = await DME.requestPermission();
+        if (res !== "granted") return;
+      }
+
+      window.addEventListener("devicemotion", handleMotion);
+    };
+
+    init();
+
+    return () =>
+      window.removeEventListener("devicemotion", handleMotion);
   }, []);
 
   return (
     <Card className="w-full max-w-sm mx-auto p-4">
       <CardHeader>
-        <CardTitle>Local Storage Status</CardTitle>
+        <CardTitle>Device Motion</CardTitle>
       </CardHeader>
 
-      <CardContent>
-        {exists === null && <p className="text-sm opacity-60">Checking...</p>}
+      <CardContent className="space-y-2">
+        <div className="flex justify-between">
+          <span>X:</span>
+          <span>{motion.x.toFixed(3)}</span>
+        </div>
 
-        {exists === true && (
-          <Badge className="bg-green-600 text-white">Key Exists</Badge>
-        )}
+        <div className="flex justify-between">
+          <span>Y:</span>
+          <span>{motion.y.toFixed(3)}</span>
+        </div>
 
-        {exists === false && (
-          <Badge className="bg-red-600 text-white">Key Not Found</Badge>
-        )}
+        <div className="flex justify-between">
+          <span>Z:</span>
+          <span>{motion.z.toFixed(3)}</span>
+        </div>
       </CardContent>
     </Card>
   );
 }
+
