@@ -22,6 +22,7 @@ import {
   Globe,
   LogOut,
   Menu,
+  Palette,
   Phone,
   User,
   type LucideIcon,
@@ -65,6 +66,7 @@ const MENU_ITEMS: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Profile", icon: User, to: "/profile" },
       { label: "Track activity", icon: Activity, to: "/activity-tracker" },
+      { label: "Todays meal", icon: Palette, to: "/meals" },
       { label: "Logout", icon: LogOut, to: "/login" },
     ],
   },
@@ -212,8 +214,7 @@ export function OnboardingNavbar({
                     item={{ label: "Log out", icon: LogOut, action: onLogout }}
                     onClick={() => {
                       setIsOpen(false);
-                      localStorage.removeItem(USER_REGISTERED)
-
+                      localStorage.removeItem(USER_REGISTERED);
                     }}
                   />
                 )}
