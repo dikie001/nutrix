@@ -1,254 +1,283 @@
-import { useEffect, useState, useRef } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Activity, TrendingUp, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button"; // Added Button
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  AlertCircle,
+  Clock,
+  Droplet,
+  Flame,
+  Sparkles,
+  TrendingUp,
+  X,
+  Zap,
+} from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { OnboardingNavbar } from "../../components/Navbar";
+import AiChat from "../ai/AI";
 
-interface MotionData {
-  x: number;
-  y: number;
-  z: number;
-}
+const data = {
+  stats: {
+    energy: 7,
+    hydration: 1250,
+    hydrationGoal: 2500,
+    calories: 1450,
+    calorieGoal: 2200,
+  },
+  meals: [
+    {
+      id: "1",
+      name: "Oatmeal & Berries",
+      time: "08:00",
+      calories: 450,
+      type: "Breakfast",
+    },
+    {
+      id: "2",
+      name: "Grilled Chicken Salad",
+      time: "13:00",
+      calories: 600,
+      type: "Lunch",
+    },
+    {
+      id: "3",
+      name: "Protein Shake",
+      time: "16:00",
+      calories: 200,
+      type: "Snack",
+    },
+  ],
+  alerts: [
+    { id: "a1", level: "critical", message: "Protein intake low (-30g)" },
+    { id: "a2", level: "warning", message: "Hydration behind schedule" },
+    { id: "a3", level: "info", message: "Dinner planned for 19:00" },
+  ],
+};
 
-interface MotionHistoryItem {
-  mag: number;
-  time: number;
-  x: number;
-  y: number;
-  z: number;
-}
-
-type ActivityType =
-  | "Initializing..."
-  | "Calibrating..."
-  | "At Rest"
-  | "Walking"
-  | "Running"
-  | "Jumping"
-  | "Strenuous Activity"
-  | "Light Movement"
-  | "Permission Denied"
-  | "Permission Error";
-
-export default function Dashboard() {
-  const [motion, setMotion] = useState<MotionData>({ x: 0, y: 0, z: 0 });
-  const [activity, setActivity] = useState<ActivityType>("Initializing...");
-  const [magnitude, setMagnitude] = useState<number>(0);
-  const [stepCount, setStepCount] = useState<number>(0);
-
-  const motionHistory = useRef<MotionHistoryItem[]>([]);
-  const lastPeakTime = useRef<number>(0);
-
-  // FIX: persistent filtered gravity values
-  const lastX = useRef(0);
-  const lastY = useRef(0);
-  const lastZ = useRef(0);
-
-  const alpha = 0.8;
-
-  const classifyActivity = (mag: number, history: MotionHistoryItem[]) => {
-    if (history.length < 12) {
-      setActivity("Calibrating...");
-      return;
-    }
-
-    const mags = history.map((h) => h.mag);
-    const avg = mags.reduce((a, b) => a + b, 0) / mags.length;
-    const std = Math.sqrt(
-      mags.map((m) => (m - avg) ** 2).reduce((a, b) => a + b, 0) / mags.length
-    );
-
-    const now = Date.now();
-
-    // Step detection
-    if (mag > 1.2 && std > 0.25 && now - lastPeakTime.current > 350) {
-      setStepCount((prev) => prev + 1);
-      lastPeakTime.current = now;
-    }
-
-    if (avg < 0.08 && std < 0.05) setActivity("At Rest");
-    else if (avg < 0.25 && std < 0.12) setActivity("Light Movement");
-    else if (avg < 0.8 && std < 0.35) setActivity("Walking");
-    else if (avg < 1.8 && std < 0.9) setActivity("Running");
-    else if (avg > 1.8 && std > 1.0) setActivity("Strenuous Activity");
-    else setActivity("Jumping");
-  };
-
-  useEffect(() => {
-    const handleMotion = (event: DeviceMotionEvent) => {
-      const acc = event.accelerationIncludingGravity || {
-        x: 0,
-        y: 0,
-        z: 0,
-      };
-
-      // High-pass filter (remove gravity)
-      const gx = alpha * lastX.current + (1 - alpha) * (acc.x ?? 0);
-      const gy = alpha * lastY.current + (1 - alpha) * (acc.y ?? 0);
-      const gz = alpha * lastZ.current + (1 - alpha) * (acc.z ?? 0);
-
-      const x = (acc.x ?? 0) - gx;
-      const y = (acc.y ?? 0) - gy;
-      const z = (acc.z ?? 0) - gz;
-
-      // update ref values
-      lastX.current = gx;
-      lastY.current = gy;
-      lastZ.current = gz;
-
-      setMotion({ x, y, z });
-
-      const mag = Math.sqrt(x * x + y * y + z * z);
-      setMagnitude(mag);
-
-      motionHistory.current.push({ mag, time: Date.now(), x, y, z });
-      if (motionHistory.current.length > 25) motionHistory.current.shift();
-
-      classifyActivity(mag, motionHistory.current);
-    };
-
-    const init = async () => {
-      type DeviceMotionEventWithPermission = typeof DeviceMotionEvent & {
-        requestPermission?: () => Promise<"granted" | "denied">;
-      };
-
-      const DME = DeviceMotionEvent as DeviceMotionEventWithPermission;
-
-      if (typeof DME?.requestPermission === "function") {
-        try {
-          const res = await DME.requestPermission();
-          if (res !== "granted") {
-            setActivity("Permission Denied");
-            return;
-          }
-        } catch {
-          setActivity("Permission Error");
-          return;
-        }
-      }
-
-      window.addEventListener("devicemotion", handleMotion);
-    };
-
-    init();
-
-    return () => window.removeEventListener("devicemotion", handleMotion);
-  }, []);
-
-  const getActivityColor = () => {
-    switch (activity) {
-      case "At Rest":
-        return "text-blue-600";
-      case "Walking":
-        return "text-green-600";
-      case "Running":
-        return "text-orange-600";
-      case "Jumping":
-        return "text-purple-600";
-      case "Strenuous Activity":
-        return "text-red-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
-  const getActivityIcon = () => {
-    switch (activity) {
-      case "Running":
-      case "Strenuous Activity":
-        return <TrendingUp className="w-6 h-6" />;
-      case "Walking":
-      case "Light Movement":
-        return <User className="w-6 h-6" />;
-      default:
-        return <Activity className="w-6 h-6" />;
-    }
-  };
+const Dashboard = () => {
+  const hydrationPercent =
+    (data.stats.hydration / data.stats.hydrationGoal) * 100;
+  const caloriePercent = (data.stats.calories / data.stats.calorieGoal) * 100;
+  const [showAiChat, setShowAiChat] = useState(false);
+  const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md mx-auto shadow-lg">
-        <CardHeader className="bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Activity className="w-6 h-6" />
-            Activity Tracker
-          </CardTitle>
-        </CardHeader>
+    <div className="min-h-screen overflow-y-auto bg-linear-to-br relative from-background to-muted/20 p-2">
+      <OnboardingNavbar currentLang="en" onLanguageChange={() => alert()} />
 
-        <CardContent className="space-y-6 pt-6">
-          <div className="text-center p-6 bg-linear-to-br from-gray-50 to-gray-100 rounded-lg shadow-inner">
-            <div className="flex justify-center mb-3">
-              <div className={getActivityColor()}>{getActivityIcon()}</div>
+      {/* Main Content */}
+      {!showAiChat ? (
+        <div className="max-w-7xl mx-auto space-y-4 pb-20">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-2">
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+                Daily Vitality
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Track your wellness journey
+              </p>
             </div>
-            <h3 className="text-sm font-medium text-gray-600 mb-1">
-              Current Activity
-            </h3>
-            <p className={`text-2xl font-bold ${getActivityColor()}`}>
-              {activity}
-            </p>
+            <Badge
+              variant="secondary"
+              className="w-fit text-xs sm:text-sm px-3 py-1.5"
+            >
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              })}
+            </Badge>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-medium">Steps Detected</span>
-              <span className="text-2xl font-bold text-indigo-600">
-                {stepCount}
-              </span>
-            </div>
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 gap-2">
+            {/* Energy Card */}
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Energy Level
+                </CardTitle>
+                <div className="p-2 bg-yellow-500/10 rounded-lg">
+                  <Zap className="h-4 w-4 text-yellow-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl md:text-4xl font-bold">
+                    {data.stats.energy}
+                  </span>
+                  <span className="text-xl text-muted-foreground">/10</span>
+                </div>
+                <div className="flex items-center gap-1 mt-2">
+                  <TrendingUp className="h-3 w-3 text-green-500" />
+                  <p className="text-xs text-muted-foreground">
+                    Feeling good today
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Hydration Card */}
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Hydration
+                </CardTitle>
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <Droplet className="h-4 w-4 text-blue-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl md:text-4xl font-bold">
+                    {data.stats.hydration}
+                  </span>
+                  <span className="text-sm text-muted-foreground">ml</span>
+                </div>
+                <div className="space-y-2 mt-3">
+                  <Progress value={hydrationPercent} className="h-2" />
+                  <p className="text-xs text-muted-foreground">
+                    {Math.round(hydrationPercent)}% of{" "}
+                    {data.stats.hydrationGoal}
+                    ml goal
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Calories Card */}
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-lg sm:col-span-2 lg:col-span-1">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Calories
+                </CardTitle>
+                <div className="p-2 bg-red-500/10 rounded-lg">
+                  <Flame className="h-4 w-4 text-red-500" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl md:text-4xl font-bold">
+                    {data.stats.calories}
+                  </span>
+                  <span className="text-sm text-muted-foreground">kcal</span>
+                </div>
+                <div className="space-y-2 mt-3">
+                  <Progress value={caloriePercent} className="h-2" />
+                  <p className="text-xs text-muted-foreground">
+                    {Math.round(caloriePercent)}% of {data.stats.calorieGoal}{" "}
+                    kcal goal
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-gray-700 font-medium">Motion Intensity</span>
-              <span className="text-lg font-semibold text-gray-900">
-                {magnitude.toFixed(2)} m/s²
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-linear-to-r from-green-500 to-red-500 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min((magnitude / 5) * 100, 100)}%`,
-                }}
-              ></div>
-            </div>
-          </div>
+          {/* Main Content Grid */}
+          <div className="flex flex-col space-y-4">
+            {/* Timeline */}
+            <Card className="lg:col-span-2 border-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg md:text-xl">
+                  Today's Timeline
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {data.meals.map((meal) => (
+                  <div
+                    key={meal.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors group border border-transparent hover:border-border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-primary/10 rounded-full group-hover:bg-primary/20 transition-colors">
+                        <Clock className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-semibold">{meal.name}</p>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Badge
+                            variant="outline"
+                            className="px-1.5 py-0 text-[10px]"
+                          >
+                            {meal.type}
+                          </Badge>
+                          <span>{meal.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-2 sm:mt-0 ml-[52px] sm:ml-0">
+                      <span className="text-sm font-bold">{meal.calories}</span>
+                      <span className="text-xs text-muted-foreground ml-1">
+                        kcal
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
 
-          <div className="bg-white p-4 rounded-lg border-2 border-gray-200 space-y-3">
-            <h3 className="font-semibold text-gray-800 mb-3">
-              Acceleration Data
-            </h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-3 bg-red-50 rounded-lg">
-                <div className="text-xs font-medium text-red-700 mb-1">
-                  X-Axis
-                </div>
-                <div className="text-lg font-bold text-red-900">
-                  {motion.x.toFixed(2)}
-                </div>
-              </div>
-              <div className="text-center p-3 bg-green-50 rounded-lg">
-                <div className="text-xs font-medium text-green-700 mb-1">
-                  Y-Axis
-                </div>
-                <div className="text-lg font-bold text-green-900">
-                  {motion.y.toFixed(2)}
-                </div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 rounded-lg">
-                <div className="text-xs font-medium text-blue-700 mb-1">
-                  Z-Axis
-                </div>
-                <div className="text-lg font-bold text-blue-900">
-                  {motion.z.toFixed(2)}
-                </div>
-              </div>
-            </div>
+            {/* Alerts */}
+            <Card className="lg:col-span-1 border-2">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg md:text-xl">Alerts</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {data.alerts.map((alert) => (
+                  <div
+                    key={alert.id}
+                    className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${
+                      alert.level === "critical"
+                        ? "bg-red-500/5 border-l-red-500"
+                        : alert.level === "warning"
+                        ? "bg-orange-500/5 border-l-orange-500"
+                        : "bg-blue-500/5 border-l-blue-500"
+                    }`}
+                  >
+                    <AlertCircle
+                      className={`h-4 w-4 mt-0.5 shrink-0 ${
+                        alert.level === "critical"
+                          ? "text-red-500"
+                          : alert.level === "warning"
+                          ? "text-orange-500"
+                          : "text-blue-500"
+                      }`}
+                    />
+                    <p className="text-sm leading-relaxed">{alert.message}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
+        </div>
+      ) : (
+        /* AI Chat Interface */
+        <div className="h-[calc(100vh-80px)] w-full flex flex-col relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 z-10"
+            onClick={() => setShowAiChat(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+          <AiChat />
+        </div>
+      )}
 
-          <div className="text-xs text-gray-500 text-center pt-2 border-t">
-            Move your device to see activity detection in action
-          </div>
-        </CardContent>
-      </Card>
+      {/* Floating AI Action Button  */}
+      <div className="sticky bottom-16 w-full flex justify-end px-2 z-50 pointer-events-none">
+        <Button
+          onClick={() => navigate("/ai")}
+          size="icon"
+          className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300 pointer-events-auto"
+        >
+          <Sparkles className="h-6 w-6" />
+        </Button>
+      </div>
     </div>
   );
-}
+};
+
+export default Dashboard;
