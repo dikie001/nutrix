@@ -122,6 +122,7 @@ export default function Dashboard() {
           }
         } catch (err) {
           setActivity("Permission Error");
+          console.log(err)
           return;
         }
       }
@@ -145,7 +146,7 @@ export default function Dashboard() {
     }
   };
 
-  const getActivityIcon = (): JSX.Element => {
+  const getActivityIcon = ()=> {
     switch (activity) {
       case "Running":
       case "Strenuous Activity":
@@ -159,9 +160,9 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 p-4">
       <Card className="w-full max-w-md mx-auto shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+        <CardHeader className="bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
           <CardTitle className="flex items-center gap-2 text-xl">
             <Activity className="w-6 h-6" />
             Activity Tracker
@@ -170,7 +171,7 @@ export default function Dashboard() {
 
         <CardContent className="space-y-6 pt-6">
           {/* Current Activity */}
-          <div className="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg shadow-inner">
+          <div className="text-center p-6 bg-linear-to-br from-gray-50 to-gray-100 rounded-lg shadow-inner">
             <div className="flex justify-center mb-3">
               <div className={`${getActivityColor()}`}>
                 {getActivityIcon()}
@@ -200,7 +201,7 @@ export default function Dashboard() {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-green-500 to-red-500 h-2 rounded-full transition-all duration-300"
+                className="bg-linear-to-r from-green-500 to-red-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min((magnitude / 5) * 100, 100)}%` }}
               />
             </div>
