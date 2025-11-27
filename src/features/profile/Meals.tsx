@@ -3,9 +3,36 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Check, Flame, Trophy } from "lucide-react";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+// Assuming this export exists based on your description
+import { food as foodDatabase } from '@/data/food';
+import { USER_DATA } from '@/lib/constants';
+console.log( foodDatabase)
 
 type Period = 'Morning' | 'Afternoon' | 'Evening';
+
+// Structure matching your food.ts
+interface FoodItem {
+  id: number;
+  name: string;
+  type: string;
+  servingGrams: number;
+  calories: number;
+  protein: number;
+  fat: number;
+  useCase: string;
+  athleteBenefit: string;
+}
+
+interface UserProfile {
+  weight: number;
+  height: number;
+  age: number;
+  gender: string;
+  trainingDays: string;
+  intensity: string;
+  goal: string;
+}
 
 interface Meal {
   id: string;
@@ -17,15 +44,85 @@ interface Meal {
   tag: string;
 }
 
-const dailyMeals: Meal[] = [
-  { id: '1', period: 'Morning', time: '07:30', name: "Oatmeal & Whey", calories: 450, macros: { p: 30, c: 60, f: 8 }, tag: "Energy" },
-  { id: '2', period: 'Afternoon', time: '12:30', name: "Chicken & Rice", calories: 620, macros: { p: 55, c: 70, f: 12 }, tag: "Recovery" },
-  { id: '3', period: 'Afternoon', time: '16:00', name: "Greek Yogurt", calories: 150, macros: { p: 15, c: 8, f: 0 }, tag: "Snack" },
-  { id: '4', period: 'Evening', time: '19:30', name: "Salmon Salad", calories: 380, macros: { p: 40, c: 10, f: 20 }, tag: "Light" },
-];
-
 export default function CompactMealTracker() {
   const [completed, setCompleted] = useState<string[]>([]);
+  const [dailyMeals, setDailyMeals] = useState<Meal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [targets, setTargets] = useState({ cals: 0, p: 0 });
+
+  useEffect(() => {
+    // 1. Fetch and Parse LocalStorage
+    const storedData = localStorage.getItem(USER_DATA); // Adjust key if needed
+    if (!storedData) {
+        setLoading(false); 
+        return; 
+    }
+
+    const profile: UserProfile = JSON.parse(storedData);
+
+    // 2. Calculate TDEE (Mifflin-St Jeor)
+    // Defaulting to male formula if gender is empty/unknown, roughly
+    const isMale = profile.gender.toLowerCase() === 'female' ? false : true;
+    let bmr = (10 * profile.weight) + (6.25 * profile.height) - (5 * profile.age) + (isMale ? 5 : -161);
+    
+    // Activity Multiplier
+    const days = parseInt(profile.trainingDays) || 3;
+    const activityMultiplier = 1.2 + (days * 0.05) + (profile.intensity === 'high' ? 0.1 : 0);
+    
+    let targetCalories = Math.round(bmr * activityMultiplier);
+
+    // Goal Adjustment
+    if (profile.goal === 'gain') targetCalories += 400;
+    else if (profile.goal === 'lose') targetCalories -= 400;
+
+    setTargets({ cals: targetCalories, p: Math.round(profile.weight * 2) }); // ~2g protein per kg
+
+    // 3. Generate Meals from Food Data
+    const generatedMeals: Meal[] = [];
+    
+    // Helper to calculate carbs (since not in your food.ts snippet)
+    // C = (TotalCals - (P*4 + F*9)) / 4
+    const getMacros = (f: FoodItem) => {
+      const c = Math.max(0, Math.round((f.calories - (f.protein * 4 + f.fat * 9)) / 4));
+      return { p: f.protein, c, f: f.fat };
+    };
+
+    // Simple distributor - In a real app, this would be a more complex knapsack algorithm
+    // Here we pick foods based on "useCase" or "type" to fill slots
+    
+    const morningFood = foodDatabase.find(f => f.type === 'carbohydrate' || f.useCase === 'energy') || foodDatabase[0];
+    const lunchProtein = foodDatabase.find(f => f.useCase === 'recovery' && f.type === 'protein') || foodDatabase[0];
+    const snackFood = foodDatabase.find(f => f.type === 'fruit' || f.calories < 200) || foodDatabase[0];
+    const dinnerFood = foodDatabase.find(f => f.type === 'protein' && f.fat < 10) || foodDatabase[0];
+
+    if (morningFood) {
+        generatedMeals.push({
+            id: '1', period: 'Morning', time: '07:30', name: morningFood.name, 
+            calories: morningFood.calories, macros: getMacros(morningFood), tag: 'Energy'
+        });
+    }
+    if (lunchProtein) {
+        generatedMeals.push({
+            id: '2', period: 'Afternoon', time: '12:30', name: lunchProtein.name, 
+            calories: lunchProtein.calories, macros: getMacros(lunchProtein), tag: 'Recovery'
+        });
+    }
+    if (snackFood) {
+        generatedMeals.push({
+            id: '3', period: 'Afternoon', time: '16:00', name: snackFood.name, 
+            calories: snackFood.calories, macros: getMacros(snackFood), tag: 'Snack'
+        });
+    }
+    if (dinnerFood) {
+        generatedMeals.push({
+            id: '4', period: 'Evening', time: '19:30', name: dinnerFood.name, 
+            calories: dinnerFood.calories, macros: getMacros(dinnerFood), tag: 'Light'
+        });
+    }
+
+    setDailyMeals(generatedMeals);
+    setLoading(false);
+  }, []);
 
   const toggleMeal = (id: string) => {
     setCompleted((prev) => 
@@ -38,22 +135,26 @@ export default function CompactMealTracker() {
     .filter(m => completed.includes(m.id))
     .reduce((acc, curr) => acc + curr.calories, 0);
   
-  const progressPercentage = Math.round((consumedCals / totalCals) * 100);
-  const allDone = completed.length === dailyMeals.length;
+  // Guard against divide by zero if data is missing
+  const progressPercentage = totalCals > 0 ? Math.round((consumedCals / totalCals) * 100) : 0;
+  const allDone = dailyMeals.length > 0 && completed.length === dailyMeals.length;
 
   const periods: Period[] = ['Morning', 'Afternoon', 'Evening'];
 
+  if (loading) return <div className="p-10 text-center text-muted-foreground">Generating Plan...</div>;
+
   return (
     <div className="w-full min-h-screen mt-4 bg-background text-foreground flex flex-col font-sans">
-      <OnboardingNavbar currentLang="en" onLanguageChange={() => alert()} />
+      <OnboardingNavbar currentLang="en" onLanguageChange={() => alert('Change language')} />
+      
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border/40 px-5 py-4">
         <div className="flex items-center justify-between mb-3">
           <div className="space-y-0.5">
             <h1 className="text-xl font-bold tracking-tight">Today's Fuel</h1>
-            <p className="text-xs text-muted-foreground font-medium">
-              {consumedCals} / {totalCals} kcal
-            </p>
+            <div className="flex gap-2 text-xs text-muted-foreground font-medium">
+               <span>{consumedCals} / {targets.cals > 0 ? targets.cals : totalCals} kcal target</span>
+            </div>
           </div>
           <div className={cn(
             "h-8 w-8 rounded-full flex items-center justify-center transition-all duration-500 border shadow-sm",
