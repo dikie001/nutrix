@@ -1,15 +1,23 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { USER_PIN } from "@/lib/constants";
 import { Lock, Delete, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 export default function CreatePassword() {
   const [step, setStep] = useState<"create" | "confirm">("create");
   const [pin, setPin] = useState<string[]>(["", "", "", ""]);
   const [confirmPin, setConfirmPin] = useState<string[]>(["", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
   const currentPin = step === "create" ? pin : confirmPin;
   const setCurrentPin = step === "create" ? setPin : setConfirmPin;
 
@@ -43,15 +51,17 @@ export default function CreatePassword() {
         // Validate pins match
         const originalPin = pin.join("");
         const confirmedPin = confirmPin.join("");
-        
+
         if (originalPin === confirmedPin) {
-          alert(`PIN Created Successfully: ${originalPin}`);
           // Reset everything
           setPin(["", "", "", ""]);
           setConfirmPin(["", "", "", ""]);
           setActiveIndex(0);
           setStep("create");
           setError("");
+          localStorage.setItem(USER_PIN, JSON.stringify(pin));
+          toast.success("Your pin has ben set successfully");
+          navigate("/dashboard");
         } else {
           setError("PINs don't match. Try again.");
           // Reset confirm step
@@ -62,11 +72,15 @@ export default function CreatePassword() {
     }
   };
 
+  
+
+
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-sm">
+    <div className="min-h-screen bg-background flex items-center justify-center ">
+      <Card className="w-full max-w-sm border-none">
         <CardHeader className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+          <div className="mx-auto h-12 w-12 -mt-8 rounded-full bg-primary/10 flex items-center justify-center mb-2">
             <Lock className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">
@@ -100,7 +114,7 @@ export default function CreatePassword() {
 
           {/* Error Message */}
           {error && (
-            <div className="flex items-center gap-2 text-destructive text-sm bg-destructive/10 p-3 rounded-lg">
+            <div className="flex items-center gap-2 absolute top-40 left-1/2 -translate-x-1/2  text-destructive text-sm bg-destructive/20  p-3 rounded-lg">
               <AlertCircle className="h-4 w-4" />
               <span>{error}</span>
             </div>

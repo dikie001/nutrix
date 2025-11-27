@@ -14,17 +14,20 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { USER_DATA, USER_REGISTERED } from "@/lib/constants";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import CTA from "./components/CTA";
-import { USER_DATA, USER_REGISTERED } from "@/lib/constants";
-import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import CTA from "./components/CTA";
+import type { UserLocation } from "@/lib/getLocation";
 
 // --- Types ---
 type OnboardingData = {
   sport: string;
   age: number;
+  name: string;
+  location: UserLocation;
   weight: number;
   height: number;
   trainingDays: string;
@@ -40,6 +43,8 @@ export default function OnboardingWizard() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<OnboardingData>({
     sport: "",
+    name: "",
+    location: { latitude: 0, longitude: 0, address: "" },
     age: 25,
     weight: 60,
     height: 170,
@@ -54,8 +59,8 @@ export default function OnboardingWizard() {
     if (step == 4) {
       localStorage.setItem(USER_DATA, JSON.stringify(formData));
       localStorage.setItem(USER_REGISTERED, "true");
+      navigate("/create-password");
       toast.success("Your data has been saved");
-      navigate("/dashboard");
     }
 
     console.log(formData);
@@ -66,6 +71,7 @@ export default function OnboardingWizard() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // proceed to next step
   const canProceed = () => {
     if (step === 1) {
       return formData.sport !== "";
@@ -73,6 +79,8 @@ export default function OnboardingWizard() {
     if (step === 4) return formData.goal !== "";
     return true;
   };
+
+  // GEt the user location
 
   return (
     <div className="overflow-y-auto scrollbar-thin  flex flex-col bg-background text-foreground ">

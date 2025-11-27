@@ -2,6 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button"; // Added Button
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { USER_DATA } from "@/lib/constants";
+import { getUserLocation } from "@/lib/getLocation";
 import {
   AlertCircle,
   Clock,
@@ -12,7 +14,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingNavbar } from "../../components/Navbar";
 import AiChat from "../ai/AI";
@@ -61,6 +63,20 @@ const Dashboard = () => {
   const caloriePercent = (data.stats.calories / data.stats.calorieGoal) * 100;
   const [showAiChat, setShowAiChat] = useState(false);
   const navigate = useNavigate();
+
+  // Get the user location
+  useEffect(() => {
+    const data = localStorage.getItem(USER_DATA);
+    const userData = data ? JSON.parse(data) : [];
+    const getLocation = async () => {
+      const location = await getUserLocation();
+      console.log(location);
+      const updatedUserData = { ...userData, location: location };
+      localStorage.setItem(USER_DATA, JSON.stringify(updatedUserData));
+    };
+
+    getLocation();
+  },[]);
 
   return (
     <div className="min-h-screen overflow-y-auto bg-linear-to-br relative from-background to-muted/20 p-2">

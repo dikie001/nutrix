@@ -1,4 +1,5 @@
 import AiChat from "@/features/ai/AI";
+import CreatePassword from "@/features/onboarding/components/CreatePassword";
 import Onboarding from "@/features/onboarding/Onboarding";
 import ActivityTracker from "@/features/profile/ActivityTracker";
 import Dashboard from "@/features/profile/Dashboard";
@@ -12,6 +13,7 @@ const AppRoutes = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/activity-tracker" element={<ActivityTracker />} />
         <Route path="/ai" element={<AiChat />} />
+        <Route path="/create-password" element={<CreatePassword />} />
       </Routes>
     </>
   );
