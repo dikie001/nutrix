@@ -24,7 +24,6 @@ import {
   LogOut,
   Menu,
   Palette,
-  Phone,
   User,
   type LucideIcon,
 } from "lucide-react";
@@ -39,7 +38,7 @@ interface NavItem {
   icon: LucideIcon;
   to?: string;
   action?: () => void;
-  variant?: "default" | "danger";
+  variant?: "default" | "danger" | "premium";
 }
 
 interface UserProfile {
@@ -66,14 +65,20 @@ const MENU_ITEMS: { title: string; items: NavItem[] }[] = [
     title: "Account",
     items: [
       { label: "Profile", icon: User, to: "/profile" },
-      { label: "Track activity", icon: Activity, to: "/activity-tracker" },
       { label: "Todays meal", icon: Palette, to: "/meals" },
       { label: "Logout", icon: LogOut, to: "/login" },
     ],
   },
   {
-    title: "Support",
-    items: [{ label: "Contact Coach", icon: Phone, to: "/contact" }],
+    title: "Premium",
+    items: [
+      { 
+        label: "Track activity", 
+        icon: Activity, 
+        to: "/activity-tracker", 
+        variant: "premium" 
+      },
+    ],
   },
 ];
 
@@ -86,6 +91,7 @@ const MenuItem = ({
   onClick: () => void;
 }) => {
   const isDanger = item.variant === "danger";
+  const isPremium = item.variant === "premium";
   const Wrapper = item.to ? Link : "div";
 
   return (
@@ -93,16 +99,24 @@ const MenuItem = ({
       <Button
         variant="ghost"
         onClick={item.action}
-        className={`w-full justify-start gap-3 h-12 text-base font-normal ${
-          isDanger
-            ? "text-destructive hover:text-destructive hover:bg-destructive/10"
-            : ""
-        }`}
+        className={`w-full justify-start gap-3 h-12 text-base font-normal transition-all duration-300 border
+          ${
+            isDanger 
+              ? "text-destructive hover:text-destructive hover:bg-destructive/10 border-transparent" 
+              : "border-transparent"
+          }
+          ${
+            isPremium
+              ? "bg-linear-to-r from-amber-500 via-yellow-400 to-amber-500 text-amber-950 font-bold shadow-md shadow-amber-500/20 hover:shadow-lg hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] border-yellow-400/50 bg-size-[200%_auto] hover:bg-right transition-[background-position,transform,shadow]"
+              : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          }
+        `}
       >
         <item.icon
-          className={`h-5 w-5 ${
-            isDanger ? "text-destructive" : "text-muted-foreground"
-          }`}
+          className={`h-5 w-5 
+            ${isDanger ? "text-destructive" : ""}
+            ${isPremium ? "text-amber-900 fill-amber-100" : "text-muted-foreground"}
+          `}
         />
         {item.label}
       </Button>
@@ -122,19 +136,19 @@ export function OnboardingNavbar({
   const location = useLocation();
 
   // Define dashboard paths where back button should be hidden
-  const isDashboard = location.pathname === "/" || location.pathname === "/dashboard";
+  const isDashboard =
+    location.pathname === "/" || location.pathname === "/dashboard";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex h-14 items-center justify-between px-4 max-w-7xl mx-auto">
-        
         {/* Left Section: Back Button & Logo */}
         <div className="flex items-center gap-1">
           {/* Back Button - Conditional Rendering */}
           {!isDashboard && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => navigate(-1)}
               className="-ml-3 mr-1 h-9 w-9 text-muted-foreground hover:text-foreground"
               aria-label="Go back"
@@ -144,9 +158,14 @@ export function OnboardingNavbar({
           )}
 
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2 hover:opacity-90">
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2 hover:opacity-90"
+          >
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-sm">N</span>
+              <span className="text-primary-foreground font-bold text-sm">
+                N
+              </span>
             </div>
             <span className="text-lg font-bold tracking-tight hidden sm:block">
               Nutrix
