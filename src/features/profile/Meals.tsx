@@ -45,7 +45,7 @@ export default function CompactMealTracker() {
 
   return (
     <div className="w-full min-h-screen mt-4 bg-background text-foreground flex flex-col font-sans">
-      <OnboardingNavbar/>
+      <OnboardingNavbar currentLang="en" onLanguageChange={() => alert()} />
       {/* Sticky Header */}
       <div className="sticky top-0 z-20 w-full bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b border-border/40 px-5 py-4">
         <div className="flex items-center justify-between mb-3">

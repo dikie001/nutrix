@@ -19,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { USER_REGISTERED } from "@/lib/constants";
 import {
   Activity,
+  ChevronLeft,
   Globe,
   LogOut,
   Menu,
@@ -28,7 +29,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 // --- Types ---
 export type Language = "en" | "sw" | "kln";
@@ -117,21 +118,43 @@ export function OnboardingNavbar({
   onLogout,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Define dashboard paths where back button should be hidden
+  const isDashboard = location.pathname === "/" || location.pathname === "/dashboard";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex h-14 items-center justify-between px-4 max-w-7xl mx-auto">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 hover:opacity-90">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-            <span className="text-primary-foreground font-bold text-sm">N</span>
-          </div>
-          <span className="text-lg font-bold tracking-tight hidden sm:block">
-            Nutrix
-          </span>
-        </Link>
+        
+        {/* Left Section: Back Button & Logo */}
+        <div className="flex items-center gap-1">
+          {/* Back Button - Conditional Rendering */}
+          {!isDashboard && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate(-1)}
+              className="-ml-3 mr-1 h-9 w-9 text-muted-foreground hover:text-foreground"
+              aria-label="Go back"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          )}
 
-        {/* Actions */}
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 hover:opacity-90">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
+              <span className="text-primary-foreground font-bold text-sm">N</span>
+            </div>
+            <span className="text-lg font-bold tracking-tight hidden sm:block">
+              Nutrix
+            </span>
+          </Link>
+        </div>
+
+        {/* Right Section: Actions */}
         <div className="flex items-center gap-2">
           {/* Language Switcher */}
           <DropdownMenu>
