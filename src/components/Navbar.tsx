@@ -27,9 +27,10 @@ import {
   LogOut,
   Menu,
   Moon,
+  Phone,
   Sun,
   User,
-  type LucideIcon
+  type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -71,6 +72,7 @@ const MENU_ITEMS: { title: string; items: NavItem[] }[] = [
       { label: "Profile", icon: User, to: "/profile" },
       { label: "Todays meal", icon: ForkKnife, to: "/meals" },
       { label: "My Recipes", icon: ChefHat, to: "/recipes" },
+      { label: "Feedback", icon: Phone, to: "/feedback" },
       { label: "Logout", icon: LogOut, to: "/login" },
     ],
   },
@@ -180,11 +182,11 @@ export function OnboardingNavbar({
           >
             <div className="h-10 w-10 rounded-lg  flex items-center justify-center shadow-sm">
               <Avatar>
-                  <AvatarImage src="/logo.jpg" />
-                  <AvatarFallback className="bg-primary text-primary-foreground font-bold">
-                    {user.initials}
-                  </AvatarFallback>
-                </Avatar>
+                <AvatarImage src="/logo.jpg" />
+                <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                  {user.initials}
+                </AvatarFallback>
+              </Avatar>
             </div>
             <span className="text-lg font-bold tracking-tight hidden sm:block">
               Nutrix
