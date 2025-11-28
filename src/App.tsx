@@ -48,13 +48,13 @@ const App = () => {
 
   return (
     <div className="w-full h-screen flex justify-center items-center bg-background text-foreground">
-      <div className="relative w-full h-full lg:w-[375px] lg:h-[667px] lg:rounded-3xl lg:border-4 lg:border-gray-400 lg:shadow-lg overflow-hidden">
+      <div className="relative  w-full h-full lg:w-[375px] lg:h-[667px] lg:rounded-3xl lg:border-4 lg:border-gray-400 lg:shadow-lg overflow-hidden">
 
         {/* mobile notch - only visible on desktop */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl z-55 hidden lg:block"></div>
 
         {/* main app */}
-        <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+        <div className="absolute mt-2 inset-0 overflow-y-auto overflow-x-hidden">
           <AppRoutes />
           <Toaster  richColors position="bottom-right" />
         </div>
