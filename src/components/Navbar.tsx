@@ -83,12 +83,12 @@ const MENU_ITEMS: { title: string; items: NavItem[] }[] = [
         to: "/activity-tracker",
         variant: "premium",
       },
-      {
-        label: "Magazines",
-        icon: Activity,
-        to: "/magazines",
-        variant: "premium",
-      },
+      // {
+      //   label: "Magazines",
+      //   icon: Activity,
+      //   to: "/magazines",
+      //   variant: "premium",
+      // },
     ],
   },
 ];
