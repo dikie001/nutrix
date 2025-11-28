@@ -8,8 +8,8 @@ import { Bot, Send, Sparkles, User } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 // YOUR API KEY
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-console.log(API_KEY)
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+console.log(API_KEY);
 
 interface UserData {
   sport: string;
@@ -142,7 +142,7 @@ Athlete Profile:
   return (
     <div className="flex flex-col h-full bg-background w-full mx-auto shadow-sm">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
+      <header className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 sticky top-0 z-10">
         <div className="flex items-center gap-3">
           <Avatar className="h-9 w-9 border">
             <AvatarImage src="/coach-avatar.png" alt="Coach" />
