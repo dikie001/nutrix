@@ -5,6 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { USER_DATA } from "@/lib/constants";
 import { getUserLocation } from "@/lib/getLocation";
 import {
+  AlertTriangle,
+  CheckCircle,
   Coffee,
   Droplet,
   Flame,
@@ -13,7 +15,7 @@ import {
   Sparkles,
   Sun,
   TrendingUp,
-  Utensils
+  Utensils,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -40,18 +42,60 @@ const getDynamicMeals = (): Meal[] => {
   const hour = new Date().getHours();
   if (hour < 11) {
     return [
-      { id: "1", name: "Chai & Mahamri", time: "08:00", calories: 350, type: "Breakfast", icon: Coffee },
-      { id: "2", name: "Uji Power (Millet)", time: "10:30", calories: 180, type: "Snack", icon: Sun },
+      {
+        id: "1",
+        name: "Chai & Mahamri",
+        time: "08:00",
+        calories: 350,
+        type: "Breakfast",
+        icon: Coffee,
+      },
+      {
+        id: "2",
+        name: "Uji Power (Millet)",
+        time: "10:30",
+        calories: 180,
+        type: "Snack",
+        icon: Sun,
+      },
     ];
   } else if (hour < 16) {
     return [
-      { id: "3", name: "Githeri Special", time: "13:00", calories: 550, type: "Lunch", icon: Utensils },
-      { id: "4", name: "Dawa (Ginger/Lemon)", time: "15:30", calories: 45, type: "Refreshment", icon: Droplet },
+      {
+        id: "3",
+        name: "Githeri Special",
+        time: "13:00",
+        calories: 550,
+        type: "Lunch",
+        icon: Utensils,
+      },
+      {
+        id: "4",
+        name: "Dawa (Ginger/Lemon)",
+        time: "15:30",
+        calories: 45,
+        type: "Refreshment",
+        icon: Droplet,
+      },
     ];
   } else {
     return [
-      { id: "5", name: "Ugali & Sukuma Wiki", time: "19:00", calories: 600, type: "Dinner", icon: Moon },
-      { id: "6", name: "Nyama Choma", time: "20:30", calories: 400, type: "Late Bite", icon: Flame },
+      {
+        id: "5",
+        name: "Ugali & Sukuma Wiki",
+        time: "19:00",
+        calories: 600,
+        type: "Dinner",
+        icon: Moon,
+      },
+      {
+        id: "6",
+        name: "Nyama Choma",
+        time: "20:30",
+        calories: 400,
+        type: "Late Bite",
+        icon: Flame,
+      },
     ];
   }
 };
@@ -87,7 +131,10 @@ const Dashboard = () => {
       try {
         const loc = await getUserLocation();
         setLocationName(loc.address.split(" ")[0] || "Kenya");
-        localStorage.setItem(USER_DATA, JSON.stringify({ ...userData, location: loc }));
+        localStorage.setItem(
+          USER_DATA,
+          JSON.stringify({ ...userData, location: loc })
+        );
       } catch (e) {
         console.log("Location fetch failed", e);
       }
@@ -100,7 +147,6 @@ const Dashboard = () => {
       <OnboardingNavbar currentLang="en" onLanguageChange={() => {}} />
 
       <main className="px-4 py-6 space-y-6 max-w-md mx-auto">
-        
         {/* Header Section */}
         <div className="space-y-4">
           <div className="flex justify-between items-start">
@@ -113,14 +159,18 @@ const Dashboard = () => {
                 <span className="text-xs font-medium">{locationName}</span>
                 <span className="text-xs text-muted-foreground/40">•</span>
                 <span className="text-xs">
-                  {new Date().toLocaleDateString("en-KE", { weekday: "short", day: "numeric", month: "short" })}
+                  {new Date().toLocaleDateString("en-KE", {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                  })}
                 </span>
               </div>
             </div>
           </div>
-          
-          <Button 
-            onClick={() => navigate("/ai")} 
+
+          <Button
+            onClick={() => navigate("/ai")}
             className="w-full shadow-sm bg-linear-to-r from-primary to-primary/90 h-11 text-sm"
           >
             <Sparkles className="mr-2 h-4 w-4" />
@@ -131,40 +181,49 @@ const Dashboard = () => {
         {/* Stats Grid - Optimized for Mobile */}
         <div className="grid grid-cols-2 gap-3">
           {/* Energy Card */}
-     <Card className="border-l-4 border-l-blue-500 shadow-sm">
-  <CardHeader className="p-3 pb-1 flex flex-row items-center justify-between space-y-0">
-    <span className="text-xs font-medium text-muted-foreground">Micronutrient Score</span>
-    <Sparkles className="h-3.5 w-3.5 text-blue-500" />
-  </CardHeader>
+          <Card className="border-l-4 border-l-blue-500 shadow-sm">
+            <CardHeader className="p-3 pb-1 flex flex-row items-center justify-between space-y-0">
+              <span className="text-xs font-medium text-muted-foreground">
+                Micronutrient Score
+              </span>
+              <Sparkles className="h-3.5 w-3.5 text-blue-500" />
+            </CardHeader>
 
-  <CardContent className="p-3 pt-1">
-    <div className="flex items-baseline gap-1">
-      <span className="text-2xl font-bold">96</span>
-      <span className="text-[10px] text-muted-foreground">/100</span>
-    </div>
+            <CardContent className="p-3 pt-1">
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-bold">96</span>
+                <span className="text-[10px] text-muted-foreground">/100</span>
+              </div>
 
-    <div className="flex items-center gap-1 mt-1 text-green-600">
-      <TrendingUp className="h-3 w-3" />
-      <span className="text-[10px] font-medium leading-none">Balanced</span>
-    </div>
-  </CardContent>
-</Card>
-
-
+              <div className="flex items-center gap-1 mt-1 text-green-600">
+                <TrendingUp className="h-3 w-3" />
+                <span className="text-[10px] font-medium leading-none">
+                  Balanced
+                </span>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Hydration Card */}
           <Card className="border-l-4 border-l-blue-500 shadow-sm">
             <CardHeader className="p-3 pb-1 flex flex-row items-center justify-between space-y-0">
-              <span className="text-xs font-medium text-muted-foreground">Water</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                Water
+              </span>
               <Droplet className="h-3.5 w-3.5 text-blue-500" />
             </CardHeader>
             <CardContent className="p-3 pt-1">
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl font-bold">
-                    {stats.hydration >= 1000 ? (stats.hydration / 1000).toFixed(1) + 'L' : stats.hydration}
+                  {stats.hydration >= 1000
+                    ? (stats.hydration / 1000).toFixed(1) + "L"
+                    : stats.hydration}
                 </span>
               </div>
-              <Progress value={hydrationPercent} className="h-1.5 mt-2 bg-blue-100" />
+              <Progress
+                value={hydrationPercent}
+                className="h-1.5 mt-2 bg-blue-100"
+              />
               <p className="text-[10px] text-muted-foreground mt-1.5">
                 {Math.round(100 - hydrationPercent)}% to goal
               </p>
@@ -173,18 +232,22 @@ const Dashboard = () => {
 
           {/* Calories Card - Full Width */}
           <Card className="col-span-2 border-l-4 border-l-red-500 shadow-sm">
-             <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Calories</CardTitle>
+            <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Calories
+              </CardTitle>
               <Flame className="h-4 w-4 text-red-500" />
             </CardHeader>
             <CardContent className="p-4 pt-1">
               <div className="flex justify-between items-end mb-2">
                 <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl font-bold">{stats.calories}</span>
-                    <span className="text-xs text-muted-foreground">kcal consumed</span>
+                  <span className="text-3xl font-bold">{stats.calories}</span>
+                  <span className="text-xs text-muted-foreground">
+                    kcal consumed
+                  </span>
                 </div>
                 <span className="text-xs font-medium text-muted-foreground mb-1">
-                    Goal: {stats.calorieGoal}
+                  Goal: {stats.calorieGoal}
                 </span>
               </div>
               <Progress value={caloriePercent} className="h-2.5 bg-red-100" />
@@ -195,9 +258,9 @@ const Dashboard = () => {
         {/* Meals Section */}
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider pl-1 flex items-center gap-2">
-             <Utensils className="h-3.5 w-3.5" /> Upcoming Meals
+            <Utensils className="h-3.5 w-3.5" /> Upcoming Meals
           </h3>
-          
+
           <div className="space-y-3">
             {meals.map((meal) => {
               const Icon = meal.icon;
@@ -211,15 +274,22 @@ const Dashboard = () => {
                       <Icon className="h-4.5 w-4.5 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm leading-tight">{meal.name}</h4>
+                      <h4 className="font-semibold text-sm leading-tight">
+                        {meal.name}
+                      </h4>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                        <span className="font-medium text-foreground/80">{meal.time}</span>
+                        <span className="font-medium text-foreground/80">
+                          {meal.time}
+                        </span>
                         <span className="text-border">•</span>
                         <span>{meal.type}</span>
                       </div>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="font-mono text-[10px] px-1.5 h-5 ml-2 shrink-0">
+                  <Badge
+                    variant="secondary"
+                    className="font-mono text-[10px] px-1.5 h-5 ml-2 shrink-0"
+                  >
                     {meal.calories} kcal
                   </Badge>
                 </div>
@@ -231,6 +301,38 @@ const Dashboard = () => {
               </p>
             )}
           </div>
+          <Card className="shadow-sm p-3 space-y-2 w-full max-w-xs">
+            <h4 className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+              <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
+              Status Updates
+            </h4>
+
+            <CardContent className="p-0 flex flex-col gap-2">
+              {/* Error */}
+              <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/20 p-2 rounded-md">
+                <AlertTriangle className="h-3 w-3 text-red-600 mt-[2px]" />
+                <span className="text-[11px] font-medium text-red-700 leading-tight">
+                  Calorie intake too low today
+                </span>
+              </div>
+
+              {/* Warning */}
+              <div className="flex items-start gap-2 bg-yellow-50 dark:bg-yellow-950/20 p-2 rounded-md">
+                <AlertTriangle className="h-3 w-3 text-yellow-600 mt-[2px]" />
+                <span className="text-[11px] font-medium text-yellow-700 leading-tight">
+                  Hydration slightly below optimal
+                </span>
+              </div>
+
+              {/* Success */}
+              <div className="flex items-start gap-2 bg-green-50 dark:bg-green-950/20 p-2 rounded-md">
+                <CheckCircle className="h-3 w-3 text-green-600 mt-[2px]" />
+                <span className="text-[11px] font-medium text-green-700 leading-tight">
+                  Protein target achieved 🎉
+                </span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
