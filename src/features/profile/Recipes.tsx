@@ -12,7 +12,6 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
-  ArrowLeft,
   Beef,
   ChefHat,
   ChevronDown,
@@ -25,9 +24,9 @@ import {
   Trophy,
   Utensils,
   Zap,
+  type LucideIcon
 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 // --- Recipe Data (Optimized for Athletes) ---
 interface Recipe {
@@ -39,7 +38,7 @@ interface Recipe {
   protein: string;
   carbs: string;
   imageColor: string;
-  icon: any;
+  icon: LucideIcon;
   description: string;
   ingredients: string[];
   instructions: string[];
@@ -404,7 +403,6 @@ const RecipeCard = ({ recipe }: { recipe: Recipe }) => {
 };
 
 export default function Recipes() {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("All");
 
   const filteredRecipes =
