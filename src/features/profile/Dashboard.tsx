@@ -302,7 +302,7 @@ const Dashboard = () => {
             )}
           </div>
           <Card className="shadow-sm p-3 space-y-2 w-full max-w-xs">
-            <h4 className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+            <h4 className="text-sm not-even:font-semibold text-muted-foreground flex items-center gap-1">
               <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
               Status Updates
             </h4>
@@ -310,7 +310,7 @@ const Dashboard = () => {
             <CardContent className="p-0 flex flex-col gap-2">
               {/* Error */}
               <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/20 p-2 rounded-md">
-                <AlertTriangle className="h-3 w-3 text-red-600 mt-[2px]" />
+                <AlertTriangle className="h-3 w-3 text-red-600 mt-1" />
                 <span className="text-[11px] font-medium text-red-700 leading-tight">
                   Calorie intake too low today
                 </span>
@@ -318,7 +318,7 @@ const Dashboard = () => {
 
               {/* Warning */}
               <div className="flex items-start gap-2 bg-yellow-50 dark:bg-yellow-950/20 p-2 rounded-md">
-                <AlertTriangle className="h-3 w-3 text-yellow-600 mt-[2px]" />
+                <AlertTriangle className="h-3 w-3 text-yellow-600 mt-1" />
                 <span className="text-[11px] font-medium text-yellow-700 leading-tight">
                   Hydration slightly below optimal
                 </span>
@@ -326,7 +326,7 @@ const Dashboard = () => {
 
               {/* Success */}
               <div className="flex items-start gap-2 bg-green-50 dark:bg-green-950/20 p-2 rounded-md">
-                <CheckCircle className="h-3 w-3 text-green-600 mt-[2px]" />
+                <CheckCircle className="h-3 w-3 text-green-600 mt-1" />
                 <span className="text-[11px] font-medium text-green-700 leading-tight">
                   Protein target achieved 🎉
                 </span>
