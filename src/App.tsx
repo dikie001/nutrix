@@ -56,7 +56,7 @@ const App = () => {
         {/* main app */}
         <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
           <AppRoutes />
-          <Toaster richColors position="top-center" />
+          <Toaster  richColors position="bottom-right" />
         </div>
 
       </div>

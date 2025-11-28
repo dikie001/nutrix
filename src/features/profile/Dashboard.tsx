@@ -7,6 +7,7 @@ import { getUserLocation } from "@/lib/getLocation";
 import {
   AlertTriangle,
   CheckCircle,
+  CloudSun,
   Coffee,
   Droplet,
   Flame,
@@ -36,6 +37,11 @@ interface Stats {
   hydrationGoal: number;
   calories: number;
   calorieGoal: number;
+}
+
+interface WeatherData {
+  temperature: number;
+  code: number;
 }
 
 const getDynamicMeals = (): Meal[] => {
@@ -111,6 +117,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState("Nairobi, KE");
   const [meals, setMeals] = useState<Meal[]>(getDynamicMeals());
+  const [weather, setWeather] = useState<WeatherData | null>(null);
 
   const stats: Stats = {
     energy: 8,
@@ -125,21 +132,37 @@ const Dashboard = () => {
 
   useEffect(() => {
     setMeals(getDynamicMeals());
-    const fetchLocation = async () => {
+    const fetchLocationAndWeather = async () => {
       const data = localStorage.getItem(USER_DATA);
       const userData = data ? JSON.parse(data) : {};
+      
       try {
         const loc = await getUserLocation();
         setLocationName(loc.address.split(" ")[0] || "Kenya");
+        
+        // Save location
         localStorage.setItem(
           USER_DATA,
           JSON.stringify({ ...userData, location: loc })
         );
+
+        // Fetch Weather using Open-Meteo (No API Key required)
+        // Assuming loc object contains latitude and longitude
+        if (loc.latitude && loc.longitude) {
+            const weatherRes = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current=temperature_2m,weather_code`
+            );
+            const weatherJson = await weatherRes.json();
+            setWeather({
+                temperature: weatherJson.current.temperature_2m,
+                code: weatherJson.current.weather_code
+            });
+        }
       } catch (e) {
-        console.log("Location fetch failed", e);
+        console.log("Location/Weather fetch failed", e);
       }
     };
-    fetchLocation();
+    fetchLocationAndWeather();
   }, []);
 
   return (
@@ -154,9 +177,22 @@ const Dashboard = () => {
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
                 {getGreeting()}, <span className="text-primary">dikie.</span>
               </h1>
-              <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
-                <MapPin className="h-3.5 w-3.5" />
-                <span className="text-xs font-medium">{locationName}</span>
+              <div className="flex items-center gap-3 text-muted-foreground mt-1">
+                <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span className="text-xs font-medium">{locationName}</span>
+                </div>
+                
+                {weather && (
+                    <>
+                        <span className="text-xs text-muted-foreground/40">•</span>
+                        <div className="flex items-center gap-1.5 animate-in fade-in duration-500">
+                            <CloudSun className="h-3.5 w-3.5" />
+                            <span className="text-xs font-medium">{Math.round(weather.temperature)}°C</span>
+                        </div>
+                    </>
+                )}
+
                 <span className="text-xs text-muted-foreground/40">•</span>
                 <span className="text-xs">
                   {new Date().toLocaleDateString("en-KE", {
@@ -171,7 +207,7 @@ const Dashboard = () => {
 
           <Button
             onClick={() => navigate("/ai")}
-            className="w-full shadow-sm bg-linear-to-r from-primary to-primary/90 h-11 text-sm"
+            className="w-full shadow-sm bg-gradient-to-r from-primary to-primary/90 h-11 text-sm"
           >
             <Sparkles className="mr-2 h-4 w-4" />
             Ask AI Assistant
