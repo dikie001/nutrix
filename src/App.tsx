@@ -18,6 +18,7 @@ const App = () => {
     "/contact",
     "/create-password",
     "/meals",
+    "/recipes",
     "/profile",
   ];
 

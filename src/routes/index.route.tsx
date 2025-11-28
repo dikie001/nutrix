@@ -8,6 +8,7 @@ import Magazine from "@/features/profile/Magazine";
 import Meals from "@/features/profile/Meals";
 import Payments from "@/features/profile/Payements";
 import Profile from "@/features/profile/Profile";
+import Recipes from "@/features/profile/Recipes";
 import { Route, Routes } from "react-router-dom";
 
 const AppRoutes = () => {
@@ -24,6 +25,8 @@ const AppRoutes = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/payments" element={<Payments />} />
         <Route path="/magazines" element={<Magazine />} />
+        <Route path="/recipes" element={<Recipes />} />
+
       </Routes>
     </>
   );

@@ -20,15 +20,16 @@ import { USER_REGISTERED } from "@/lib/constants";
 import { useTheme } from "@/lib/theme-provider";
 import {
   Activity,
+  ChefHat,
   ChevronLeft,
+  ForkKnife,
   Globe,
   LogOut,
   Menu,
   Moon,
-  Palette,
   Sun,
   User,
-  type LucideIcon,
+  type LucideIcon
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -68,23 +69,25 @@ const MENU_ITEMS: { title: string; items: NavItem[] }[] = [
     title: "Account",
     items: [
       { label: "Profile", icon: User, to: "/profile" },
-      { label: "Todays meal", icon: Palette, to: "/meals" },
+      { label: "Todays meal", icon: ForkKnife, to: "/meals" },
+      { label: "My Recipes", icon: ChefHat, to: "/recipes" },
       { label: "Logout", icon: LogOut, to: "/login" },
     ],
   },
   {
     title: "Premium",
     items: [
-      { 
-        label: "Track activity", 
-        icon: Activity, 
-        to: "/activity-tracker", 
-        variant: "premium" 
-      },    { 
-        label: "Magazines", 
-        icon: Activity, 
-        to: "/magazines", 
-        variant: "premium" 
+      {
+        label: "Track activity",
+        icon: Activity,
+        to: "/activity-tracker",
+        variant: "premium",
+      },
+      {
+        label: "Magazines",
+        icon: Activity,
+        to: "/magazines",
+        variant: "premium",
       },
     ],
   },
@@ -109,8 +112,8 @@ const MenuItem = ({
         onClick={item.action}
         className={`w-full justify-start gap-3 h-12 text-base font-normal transition-all duration-300 border
           ${
-            isDanger 
-              ? "text-destructive hover:text-destructive hover:bg-destructive/10 border-transparent" 
+            isDanger
+              ? "text-destructive hover:text-destructive hover:bg-destructive/10 border-transparent"
               : "border-transparent"
           }
           ${
@@ -123,7 +126,11 @@ const MenuItem = ({
         <item.icon
           className={`h-5 w-5 
             ${isDanger ? "text-destructive" : ""}
-            ${isPremium ? "text-amber-900 fill-amber-100" : "text-muted-foreground"}
+            ${
+              isPremium
+                ? "text-amber-900 fill-amber-100"
+                : "text-muted-foreground"
+            }
           `}
         />
         {item.label}

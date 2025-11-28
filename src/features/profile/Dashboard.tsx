@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { USER_DATA } from "@/lib/constants";
 import { getUserLocation } from "@/lib/getLocation";
 import {
@@ -23,10 +22,27 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { OnboardingNavbar } from "../../components/Navbar";
 
+interface Meal {
+  id: string;
+  name: string;
+  time: string;
+  calories: number;
+  type: string;
+  icon: typeof Coffee; // all icons are React components
+}
+
+interface Stats {
+  energy: number;
+  hydration: number;
+  hydrationGoal: number;
+  calories: number;
+  calorieGoal: number;
+}
+
 // Helper to get time-based Kenyan meals
-const getDynamicMeals = () => {
+const getDynamicMeals = (): Meal[] => {
   const hour = new Date().getHours();
-  
+
   if (hour < 11) {
     return [
       { id: "1", name: "Chai & Mahamri", time: "08:00", calories: 350, type: "Breakfast", icon: Coffee },
@@ -55,10 +71,9 @@ const getGreeting = () => {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState("Nairobi, KE");
-  const [meals, setMeals] = useState(getDynamicMeals());
-  
-  // Static stats for demo
-  const stats = {
+  const [meals, setMeals] = useState<Meal[]>(getDynamicMeals());
+
+  const stats: Stats = {
     energy: 8,
     hydration: 1450,
     hydrationGoal: 2500,
@@ -70,13 +85,12 @@ const Dashboard = () => {
   const caloriePercent = (stats.calories / stats.calorieGoal) * 100;
 
   useEffect(() => {
-    // Refresh meals based on time
     setMeals(getDynamicMeals());
 
     const fetchLocation = async () => {
       const data = localStorage.getItem(USER_DATA);
       const userData = data ? JSON.parse(data) : {};
-      
+
       try {
         const loc = await getUserLocation();
         setLocationName(loc?.city || "Kenya");
@@ -107,7 +121,7 @@ const Dashboard = () => {
               </span>
             </div>
           </div>
-          
+
           <Button onClick={() => navigate("/ai")} className="w-fit shadow-md">
             <Sparkles className="mr-2 h-4 w-4" />
             Ask AI Assistant
@@ -116,7 +130,6 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="flex flex-col gap-4">
-          {/* Energy */}
           <Card className="border-l-4 border-l-yellow-500 shadow-sm hover:shadow-md transition-all">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">Vitality</CardTitle>
@@ -134,7 +147,6 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Hydration */}
           <Card className="border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-all">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">Hydration</CardTitle>
@@ -145,14 +157,13 @@ const Dashboard = () => {
                 <span className="text-3xl font-bold">{stats.hydration}</span>
                 <span className="text-sm text-muted-foreground">ml</span>
               </div>
-              <Progress value={hydrationPercent} className="h-2 mt-3 bg-blue-100" indicatorClassName="bg-blue-500" />
+              <Progress value={hydrationPercent} className="h-2 mt-3 bg-blue-100" />
               <p className="text-xs text-muted-foreground mt-2">
                 {Math.round(100 - hydrationPercent)}% to daily goal
               </p>
             </CardContent>
           </Card>
 
-          {/* Calories */}
           <Card className="border-l-4 border-l-red-500 shadow-sm hover:shadow-md transition-all">
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm font-medium text-muted-foreground">Calories</CardTitle>
@@ -163,7 +174,7 @@ const Dashboard = () => {
                 <span className="text-3xl font-bold">{stats.calories}</span>
                 <span className="text-sm text-muted-foreground">kcal</span>
               </div>
-              <Progress value={caloriePercent} className="h-2 mt-3 bg-red-100" indicatorClassName="bg-red-500" />
+              <Progress value={caloriePercent} className="h-2 mt-3 bg-red-100" />
               <p className="text-xs text-muted-foreground mt-2">
                 Target: {stats.calorieGoal} kcal
               </p>
@@ -171,22 +182,23 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {/* Dynamic Kenyan Meal Timeline */}
-          <Card className="lg:col-span-2 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Utensils className="h-5 w-5 text-primary" />
-                Suggested Meals
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {meals.map((meal) => (
+        {/* Meals */}
+        <Card className="lg:col-span-2 shadow-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Utensils className="h-5 w-5 text-primary" />
+              Suggested Meals
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {meals.map((meal) => {
+                const Icon = meal.icon;
+                return (
                   <div key={meal.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 border hover:bg-muted/60 transition-colors">
                     <div className="flex items-center gap-4">
                       <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <meal.icon className="h-5 w-5 text-primary" />
+                        <Icon className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <h4 className="font-semibold">{meal.name}</h4>
@@ -202,54 +214,15 @@ const Dashboard = () => {
                       {meal.calories} kcal
                     </Badge>
                   </div>
-                ))}
-                {meals.length === 0 && (
-                  <p className="text-muted-foreground text-sm">No meals scheduled for this time.</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Alerts / Insights */}
-          <Card className="h-fit shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg">Insights</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-3 p-3 rounded-md bg-orange-50 border border-orange-100 dark:bg-orange-900/20 dark:border-orange-900">
-                <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-orange-900 dark:text-orange-100">Hydration Alert</p>
-                  <p className="text-xs text-orange-700 dark:text-orange-300">
-                    It's hot in {locationName.split(',')[0]}. Drink 500ml more water.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex gap-3 p-3 rounded-md bg-green-50 border border-green-100 dark:bg-green-900/20 dark:border-green-900">
-                <Sparkles className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-green-900 dark:text-green-100">Great Progress</p>
-                  <p className="text-xs text-green-700 dark:text-green-300">
-                    You've hit your protein goal for lunch.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                );
+              })}
+              {meals.length === 0 && (
+                <p className="text-muted-foreground text-sm">No meals scheduled for this time.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </main>
-
-      {/* Floating Action Button */}
-      {/* <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={() => navigate("/ai")}
-          size="icon"
-          className="h-14 w-14 rounded-full shadow-xl bg-primary hover:bg-primary/90 hover:scale-105 transition-all duration-300"
-        >
-          <Sparkles className="h-6 w-6" />
-        </Button>
-      </div> */}
     </div>
   );
 };

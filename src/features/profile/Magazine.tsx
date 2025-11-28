@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-    BookOpen,
-    Check,
-    CreditCard,
-    Loader2,
-    Lock,
-    RefreshCcw,
-    User,
+  BookOpen,
+  Check,
+  CreditCard,
+  Loader2,
+  Lock,
+  RefreshCcw,
+  User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 

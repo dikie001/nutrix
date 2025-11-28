@@ -3,7 +3,7 @@ import type { Food } from "@/types/food.types";
 export const food: Food[] = [
   {
     id: 1,
-    name: "Ugali",
+    name: "Maize meal",
     type: "carb",
     servingGrams: 200,
     calories: 330,
@@ -14,7 +14,7 @@ export const food: Food[] = [
   },
   {
     id: 2,
-    name: "Githeri",
+    name: "Milk",
     type: "protein",
     servingGrams: 200,
     calories: 250,
@@ -36,8 +36,8 @@ export const food: Food[] = [
   },
   {
     id: 4,
-    name: "Sukumawiki",
-    type: "vitamin",
+    name: "Matoke",
+    type: "carb",
     servingGrams: 100,
     calories: 35,
     protein: 3,
