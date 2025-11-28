@@ -178,10 +178,13 @@ export function OnboardingNavbar({
             to="/dashboard"
             className="flex items-center gap-2 hover:opacity-90"
           >
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <span className="text-primary-foreground font-bold text-sm">
-                N
-              </span>
+            <div className="h-10 w-10 rounded-lg  flex items-center justify-center shadow-sm">
+              <Avatar>
+                  <AvatarImage src="/logo.jpg" />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                    {user.initials}
+                  </AvatarFallback>
+                </Avatar>
             </div>
             <span className="text-lg font-bold tracking-tight hidden sm:block">
               Nutrix
@@ -255,7 +258,7 @@ export function OnboardingNavbar({
               {/* Menu Header */}
               <DialogHeader className="p-6 border-b bg-muted/10 text-left flex flex-row items-center gap-4 space-y-0">
                 <Avatar>
-                  <AvatarImage src={user.avatarUrl} />
+                  <AvatarImage src="/logo.jpg" />
                   <AvatarFallback className="bg-primary text-primary-foreground font-bold">
                     {user.initials}
                   </AvatarFallback>
