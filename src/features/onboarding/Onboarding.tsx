@@ -55,7 +55,6 @@ export default function OnboardingWizard() {
     goal: "",
   });
 
-  //  Tab switching
   const handleNext = () => {
     setStep((prev) => Math.min(prev + 1, totalSteps));
     if (step == 4) {
@@ -72,7 +71,6 @@ export default function OnboardingWizard() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // proceed to next step
   const canProceed = () => {
     if (step === 1) {
       return formData.sport !== "";
@@ -82,32 +80,29 @@ export default function OnboardingWizard() {
   };
 
   return (
-    // Fixed: Added h-screen and removed overflow-y-auto from parent
-    <div className="h-screen w-full flex flex-col bg-background text-foreground overflow-hidden">
+    // FIXED: Use h-[100dvh] to match exact device viewport height and prevent outer scroll
+    <div className="flex flex-col h-[100dvh] w-full bg-background text-foreground overflow-hidden">
       {!start ? (
         <CTA setStart={setStart} />
       ) : (
-        // Fixed: Use flex-col and h-full to manage internal scrolling
-        <div className="flex flex-col h-full w-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 pt-8 shrink-0">
-            <h1 className="text-xl font-bold">Setup Profile</h1>
-            <div className="text-sm text-muted-foreground">
-              {step}/{totalSteps}
+        <>
+          {/* Header Section - Shrink 0 prevents it from being squashed */}
+          <div className="shrink-0">
+            <div className="flex items-center justify-between p-4 pt-6">
+              <h1 className="text-xl font-bold">Setup Profile</h1>
+              <div className="text-sm text-muted-foreground">
+                {step}/{totalSteps}
+              </div>
+            </div>
+            <div className="px-4 pb-4">
+              <Progress value={progress} className="h-2" />
             </div>
           </div>
 
-          {/* Progress Bar */}
-          <div className="px-4 pb-4 shrink-0">
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          {/* Dynamic Content Area */}
-          {/* Fixed: Added flex-1 and overflow-y-auto here to isolate scrolling */}
-          <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-thin">
-            {/* Step 1: Sport Selection */}
+          {/* Scrollable Content Area - flex-1 makes it fill remaining space */}
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
             {step === 1 && (
-              <div className="space-y-6">
+              <div className="space-y-6 pb-4">
                 <div>
                   <h2 className="text-2xl font-bold">Your Sport</h2>
                   <p className="text-muted-foreground mt-1">
@@ -116,9 +111,7 @@ export default function OnboardingWizard() {
                 </div>
                 <RadioGroup
                   value={formData.sport}
-                  onValueChange={(val) => {
-                    updateField("sport", val);
-                  }}
+                  onValueChange={(val) => updateField("sport", val)}
                   className="grid grid-cols-2 gap-3"
                 >
                   {[
@@ -149,7 +142,7 @@ export default function OnboardingWizard() {
                 </RadioGroup>
 
                 {formData.sport === "other" && (
-                  <div className="pt-2 pb-8">
+                  <div className="pt-2">
                     <Label
                       htmlFor="customSport"
                       className="text-sm mb-2 block"
@@ -168,9 +161,8 @@ export default function OnboardingWizard() {
               </div>
             )}
 
-            {/* Step 2: Body Stats */}
             {step === 2 && (
-              <div className="space-y-4">
+              <div className="space-y-4 pb-4">
                 <div>
                   <h2 className="text-2xl font-bold">Body Stats</h2>
                   <p className="text-muted-foreground mt-1">
@@ -179,7 +171,6 @@ export default function OnboardingWizard() {
                 </div>
 
                 <div className="space-y-4">
-                  {/* Weight Slider */}
                   <div>
                     <div className="flex justify-between items-baseline mb-2">
                       <Label className="text-base">Weight</Label>
@@ -200,7 +191,6 @@ export default function OnboardingWizard() {
                     />
                   </div>
 
-                  {/* Height Slider */}
                   <div>
                     <div className="flex justify-between items-baseline mb-2">
                       <Label className="text-base">Height</Label>
@@ -221,7 +211,6 @@ export default function OnboardingWizard() {
                     />
                   </div>
 
-                  {/* Age Input */}
                   <div>
                     <Label htmlFor="age" className="text-base mb-2 block">
                       Age
@@ -237,7 +226,6 @@ export default function OnboardingWizard() {
                     />
                   </div>
 
-                  {/* Gender Select */}
                   <div>
                     <Label className="text-base mb-2 block">Gender</Label>
                     <Select
@@ -257,9 +245,9 @@ export default function OnboardingWizard() {
                 </div>
               </div>
             )}
-            {/* Step 3: Training Schedule */}
+
             {step === 3 && (
-              <div className="space-y-8">
+              <div className="space-y-8 pb-4">
                 <div>
                   <h2 className="text-2xl font-bold">Training</h2>
                   <p className="text-muted-foreground mt-1">
@@ -320,9 +308,8 @@ export default function OnboardingWizard() {
               </div>
             )}
 
-            {/* Step 4: Goal */}
             {step === 4 && (
-              <div className="space-y-6">
+              <div className="space-y-6 pb-4">
                 <div>
                   <h2 className="text-2xl font-bold">Your Goal</h2>
                   <p className="text-muted-foreground mt-1">
@@ -366,7 +353,7 @@ export default function OnboardingWizard() {
                       }`}
                       onClick={() => updateField("goal", goal.id)}
                     >
-                      <CardContent className="flex flex-col text-center  items-center p-2 gap-3">
+                      <CardContent className="flex flex-col text-center items-center p-2 gap-3">
                         <div className="text-3xl">{goal.icon}</div>
                         <div className="flex-1">
                           <h3 className="font-bold text-base">{goal.title}</h3>
@@ -395,9 +382,8 @@ export default function OnboardingWizard() {
             )}
           </div>
 
-          {/* Footer Navigation */}
-          {/* Fixed: Removed absolute, uses flex flow to sit at bottom */}
-          <div className="p-4 border-t bg-background shrink-0 flex gap-3 z-10">
+          {/* Footer Navigation - shrink-0 ensures it is always visible and never squashed */}
+          <div className="shrink-0 p-4 border-t bg-background flex gap-3">
             <Button
               variant="outline"
               className="flex-1 h-12"
@@ -415,7 +401,7 @@ export default function OnboardingWizard() {
               {step !== totalSteps && <ChevronRight className="ml-1 h-4 w-4" />}
             </Button>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
