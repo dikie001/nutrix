@@ -50,7 +50,7 @@ export default function Login() {
   const handleLogin = () => {
     if (activeIndex === 4) {
       const storedData = localStorage.getItem(USER_PIN);
-      
+
       if (!storedData) {
         setError("System error: No PIN stored");
         return;
@@ -65,7 +65,7 @@ export default function Login() {
         toast.success("Welcome back!");
         navigate("/dashboard");
       } else {
-        toast.error("Incorrect pin, please try again")
+        toast.error("Incorrect pin, please try again");
         // Reset PIN on failure
         setPin(["", "", "", ""]);
         setActiveIndex(0);
@@ -78,13 +78,17 @@ export default function Login() {
       <Card className="w-full max-w-sm border-none">
         <CardHeader className="text-center">
           <div className="mx-auto h-12 w-12 -mt-8 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            <Lock onClick={()=>{
-              localStorage.removeItem(USER_REGISTERED)
-              toast.info("Hello there!")
-            }} onDoubleClick={()=>{
-              localStorage.removeItem(USER_PAID)
-              toast.info("Hello again, I hope you are doing great!")
-            }} className="h-6 w-6 text-primary" />
+            <Lock
+              onClick={() => {
+                localStorage.removeItem(USER_REGISTERED);
+                toast.info("Hello there!");
+              }}
+              onDoubleClick={() => {
+                localStorage.removeItem(USER_PAID);
+                toast.info("Hello again, I hope you are doing great!");
+              }}
+              className="h-6 w-6 text-primary"
+            />
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
