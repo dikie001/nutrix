@@ -64,7 +64,6 @@ export default function OnboardingWizard() {
       navigate("/create-password");
       toast.success("Your data has been saved");
     }
-
     console.log(formData);
   };
   const handleBack = () => setStep((prev) => Math.max(prev - 1, 1));
@@ -82,16 +81,16 @@ export default function OnboardingWizard() {
     return true;
   };
 
-  // GEt the user location
-
   return (
-    <div className="overflow-y-auto scrollbar-thin  flex flex-col bg-background text-foreground ">
+    // Fixed: Added h-screen and removed overflow-y-auto from parent
+    <div className="h-screen w-full flex flex-col bg-background text-foreground overflow-hidden">
       {!start ? (
         <CTA setStart={setStart} />
       ) : (
-        <div className="">
-          {/*  Header */}
-          <div className="flex items-center justify-between p-4 pt-8">
+        // Fixed: Use flex-col and h-full to manage internal scrolling
+        <div className="flex flex-col h-full w-full">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 pt-8 shrink-0">
             <h1 className="text-xl font-bold">Setup Profile</h1>
             <div className="text-sm text-muted-foreground">
               {step}/{totalSteps}
@@ -99,12 +98,13 @@ export default function OnboardingWizard() {
           </div>
 
           {/* Progress Bar */}
-          <div className="px-4 pb-4">
+          <div className="px-4 pb-4 shrink-0">
             <Progress value={progress} className="h-2" />
           </div>
 
           {/* Dynamic Content Area */}
-          <div className="flex-1 overflow-y-auto px-4 pb-4">
+          {/* Fixed: Added flex-1 and overflow-y-auto here to isolate scrolling */}
+          <div className="flex-1 overflow-y-auto px-4 pb-4 scrollbar-thin">
             {/* Step 1: Sport Selection */}
             {step === 1 && (
               <div className="space-y-6">
@@ -149,8 +149,11 @@ export default function OnboardingWizard() {
                 </RadioGroup>
 
                 {formData.sport === "other" && (
-                  <div className="pt-2 pb-28">
-                    <Label htmlFor="customSport" className="text-sm mb-2 block">
+                  <div className="pt-2 pb-8">
+                    <Label
+                      htmlFor="customSport"
+                      className="text-sm mb-2 block"
+                    >
                       Specify your sport
                     </Label>
                     <Input
@@ -375,26 +378,26 @@ export default function OnboardingWizard() {
                     </Card>
                   ))}
                 </div>
-                     <label className="flex items-center gap-2 pt-2">
-              <Input type="checkbox" className="h-4 w-4 cursor-pointer" />
-              <span className="text-sm">
-                I agree to the{" "}
-                <a href="/terms" className="underline cursor-pointer">
-                  Terms & Conditions
-                </a>
-                {" and "}  
-                <a href="/privacy" className="underline cursor-pointer">
-                  Privacy Policy
-                </a>
-              </span>
-            </label>
+                <label className="flex items-center gap-2 pt-2">
+                  <Input type="checkbox" className="h-4 w-4 cursor-pointer" />
+                  <span className="text-sm">
+                    I agree to the{" "}
+                    <a href="/terms" className="underline cursor-pointer">
+                      Terms & Conditions
+                    </a>
+                    {" and "}
+                    <a href="/privacy" className="underline cursor-pointer">
+                      Privacy Policy
+                    </a>
+                  </span>
+                </label>
               </div>
             )}
-       
           </div>
 
           {/* Footer Navigation */}
-          <div className="p-4 border-t bg-background absolute w-full bottom-4   flex gap-3">
+          {/* Fixed: Removed absolute, uses flex flow to sit at bottom */}
+          <div className="p-4 border-t bg-background shrink-0 flex gap-3 z-10">
             <Button
               variant="outline"
               className="flex-1 h-12"
