@@ -337,7 +337,7 @@ const Dashboard = () => {
               </p>
             )}
           </div>
-          <Card className="shadow-sm p-3 space-y-2 w-full max-w-xs">
+          <Card className="shadow-sm p-3 space-y-2 w-full ">
             <h4 className="text-sm not-even:font-semibold text-muted-foreground flex items-center gap-1">
               <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
               Status Updates

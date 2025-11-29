@@ -8,22 +8,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { USER_PAID } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
   Activity,
   Footprints,
   Gauge,
-  Lock,
   Loader2,
+  Lock,
   Move,
   TrendingUp,
   User,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { OnboardingNavbar } from "../../components/Navbar";
-import { USER_PAID } from "@/lib/constants";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { OnboardingNavbar } from "../../components/Navbar";
 
 // --- Types & Interfaces ---
 interface MotionData {
@@ -42,7 +42,6 @@ interface MotionHistoryItem {
 
 type ActivityType =
   | "Initializing..."
-  | "Calibrating..."
   | "At Rest"
   | "Walking"
   | "Running"
@@ -54,27 +53,31 @@ type ActivityType =
 
 export default function ActivityTracker() {
   // --- State & Refs ---
-  const [hasAccess, setHasAccess] = useState(false); // Controls the view
+  const [hasAccess, setHasAccess] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [motion, setMotion] = useState<MotionData>({ x: 0, y: 0, z: 0 });
-  const [activity, setActivity] = useState<ActivityType>("Initializing...");
+  const [activity, setActivity] = useState<ActivityType>("At Rest"); // Start at Rest immediately
   const [magnitude, setMagnitude] = useState<number>(0);
   const [stepCount, setStepCount] = useState<number>(0);
   const navigate = useNavigate();
 
   const motionHistory = useRef<MotionHistoryItem[]>([]);
   const lastPeakTime = useRef<number>(0);
+  
+  // Sensor State
   const gravityX = useRef(0);
   const gravityY = useRef(0);
   const gravityZ = useRef(0);
+  const isSensorInitialized = useRef(false); // New flag to prevent startup spikes
+  
   const smoothedMag = useRef(0);
   const pendingActivity = useRef<ActivityType | null>(null);
   const pendingSince = useRef<number>(0);
 
   // Constants
-  const GRAVITY_ALPHA = 0.98;
-  const MAG_SMOOTH_ALPHA = 0.15;
-  const STABLE_MS = 700;
+  const GRAVITY_ALPHA = 0.92; // Slightly faster adaptation
+  const MAG_SMOOTH_ALPHA = 0.2; 
+  const STABLE_MS = 500; // Faster activity switching
 
   // --- Logic Helpers ---
   const computeStats = (arr: number[]) => {
@@ -87,39 +90,51 @@ export default function ActivityTracker() {
   };
 
   const classifyActivityImmediate = (history: MotionHistoryItem[]) => {
-    if (history.length < 12) return "Calibrating..." as ActivityType;
+    // If history is empty, return Rest immediately
+    if (history.length === 0) return "At Rest";
 
     const mags = history.map((h) => h.mag);
     const { avg, std } = computeStats(mags);
     const now = Date.now();
 
-    const noiseFloor = Math.max(std * 2.5, 0.7);
-    const peakThreshold = Math.max(1.2, noiseFloor);
-
-    // Step Detection
+    // -- Updated Step Detection (More Robust) --
+    // Peak threshold needs to be high enough to avoid jitter
+    const stepThreshold = 1.5; 
     const lastMag = history[history.length - 1].mag;
-    if (lastMag > peakThreshold && now - lastPeakTime.current > 400) {
-      if (std > 0.12) {
+    
+    // Simple peak detection for steps
+    if (lastMag > stepThreshold && now - lastPeakTime.current > 350) {
+      // Must have some variance to be a step, not just a tilt
+      if (std > 0.5) {
         setStepCount((prev) => prev + 1);
         lastPeakTime.current = now;
       }
     }
 
-    // Activity Classification
-    if (avg < 0.12 && std < 0.08) return "At Rest";
-    if (avg < 0.4 && std < 0.25) return "Light Movement";
-    if (avg < 1.0 && std < 0.5) return "Walking";
-    if (avg < 2.0 && std < 1.0) return "Running";
-    if (avg >= 2.0 && std >= 1.0) return "Strenuous Activity";
+    // -- Updated Classification Logic (Realistic Thresholds) --
+    // 1. Check for Jumping (High impact peaks)
+    const recentHighPeaks = history.filter((h) => h.mag > 10.0).length;
+    if (recentHighPeaks >= 1) return "Jumping";
 
-    const recentPeaks = history.filter((h) => h.mag > 2.2).length;
-    if (recentPeaks >= 2) return "Jumping";
+    // 2. Movement based on Average Magnitude (m/s^2)
+    if (avg < 0.5) return "At Rest";         // Sitting/Still
+    if (avg < 1.5) return "Light Movement";  // Fidgeting/Typing/Phone handling
+    if (avg < 4.0) return "Walking";         // Normal Walking speed
+    if (avg >= 4.0) return "Running";        // Running generates constant high force
 
     return "Light Movement";
   };
 
   const maybeSetActivity = (candidate: ActivityType) => {
     const now = Date.now();
+    
+    // Immediate switch for high intensity to capture starts quickly
+    if ((candidate === "Jumping" || candidate === "Running") && activity !== candidate) {
+        setActivity(candidate);
+        pendingActivity.current = null;
+        return;
+    }
+
     if (candidate === activity) {
       pendingActivity.current = null;
       pendingSince.current = 0;
@@ -143,10 +158,8 @@ export default function ActivityTracker() {
 
   const handleStartTracking = async () => {
     setIsVerifying(true);
-
     localStorage.setItem(USER_PAID, "true");
-    toast.info("Tracking in progress");
-    // 3. If Paid, Initialize Sensors
+    toast.info("Tracking started");
     setHasAccess(true);
     setIsVerifying(false);
     initSensors();
@@ -154,46 +167,55 @@ export default function ActivityTracker() {
 
   const handleMotion = (event: DeviceMotionEvent) => {
     const acc = event.accelerationIncludingGravity || { x: 0, y: 0, z: 0 };
+    const rawX = acc.x ?? 0;
+    const rawY = acc.y ?? 0;
+    const rawZ = acc.z ?? 0;
+
+    // --- CRITICAL FIX: Immediate Gravity Initialization ---
+    // Prevents "Jumping" detection when sitting down due to initial filter lag
+    if (!isSensorInitialized.current) {
+        gravityX.current = rawX;
+        gravityY.current = rawY;
+        gravityZ.current = rawZ;
+        isSensorInitialized.current = true;
+    }
 
     // Gravity Filter
-    const gx =
-      GRAVITY_ALPHA * gravityX.current + (1 - GRAVITY_ALPHA) * (acc.x ?? 0);
-    const gy =
-      GRAVITY_ALPHA * gravityY.current + (1 - GRAVITY_ALPHA) * (acc.y ?? 0);
-    const gz =
-      GRAVITY_ALPHA * gravityZ.current + (1 - GRAVITY_ALPHA) * (acc.z ?? 0);
-
-    const x = (acc.x ?? 0) - gx;
-    const y = (acc.y ?? 0) - gy;
-    const z = (acc.z ?? 0) - gz;
+    const gx = GRAVITY_ALPHA * gravityX.current + (1 - GRAVITY_ALPHA) * rawX;
+    const gy = GRAVITY_ALPHA * gravityY.current + (1 - GRAVITY_ALPHA) * rawY;
+    const gz = GRAVITY_ALPHA * gravityZ.current + (1 - GRAVITY_ALPHA) * rawZ;
 
     gravityX.current = gx;
     gravityY.current = gy;
     gravityZ.current = gz;
 
-    // Magnitude
-    const mag = Math.sqrt(x * x + y * y + z * z);
-    smoothedMag.current =
-      MAG_SMOOTH_ALPHA * mag + (1 - MAG_SMOOTH_ALPHA) * smoothedMag.current;
+    // Linear Acceleration (Gravity Removed)
+    const x = rawX - gx;
+    const y = rawY - gy;
+    const z = rawZ - gz;
 
+    // Magnitude Calculation
+    const mag = Math.sqrt(x * x + y * y + z * z);
+    
+    // Smooth the magnitude for display to reduce jitter numbers
+    smoothedMag.current = MAG_SMOOTH_ALPHA * mag + (1 - MAG_SMOOTH_ALPHA) * smoothedMag.current;
+
+    // Update UI State
     setMotion({ x, y, z });
     setMagnitude(smoothedMag.current);
 
+    // History for classification
     motionHistory.current.push({
       mag: smoothedMag.current,
       time: Date.now(),
-      x,
-      y,
-      z,
+      x, y, z,
     });
-    if (motionHistory.current.length > 40) motionHistory.current.shift();
+    
+    // Keep history short (~0.5s of data @ 60Hz)
+    if (motionHistory.current.length > 30) motionHistory.current.shift();
 
     const candidate = classifyActivityImmediate(motionHistory.current);
-    if (candidate === "Calibrating...") {
-      setActivity("Calibrating...");
-    } else {
-      maybeSetActivity(candidate);
-    }
+    maybeSetActivity(candidate);
   };
 
   // Sensor functions
@@ -216,33 +238,29 @@ export default function ActivityTracker() {
       }
     }
 
-    // Reset
-    gravityX.current = 0;
-    gravityY.current = 0;
-    gravityZ.current = 0;
-    smoothedMag.current = 0;
+    // Reset logic
+    isSensorInitialized.current = false; // Reset init flag
     motionHistory.current = [];
     lastPeakTime.current = 0;
     pendingActivity.current = null;
     pendingSince.current = 0;
-    setActivity("Calibrating...");
+    setActivity("At Rest"); // Default to At Rest immediately
     setStepCount(0);
 
     window.addEventListener("devicemotion", handleMotion, { passive: true });
   };
 
-  // Cleanup on unmount only
+  // Cleanup
   useEffect(() => {
     return () => {
       window.removeEventListener("devicemotion", handleMotion);
     };
   }, []);
 
-  // check if user has paid
+  // Check payment
   useEffect(() => {
     const verifyUser = () => {
       const value = localStorage.getItem(USER_PAID);
-
       if (value === "true") {
         setHasAccess(false);
       } else {
@@ -305,7 +323,6 @@ export default function ActivityTracker() {
       <OnboardingNavbar currentLang="en" onLanguageChange={() => {}} />
 
       <div className="flex-1 w-full p-4 space-y-4 pb-10">
-        {/* PREMIUM GATE CHECK */}
         {!hasAccess ? (
           <div className="flex flex-col items-center justify-center h-[60vh] space-y-6">
             <div className="p-6 bg-muted/30 rounded-full border-2 border-dashed border-muted-foreground/20">
@@ -313,7 +330,7 @@ export default function ActivityTracker() {
             </div>
             <div className="text-center space-y-2 max-w-xs">
               <h2 className="text-xl font-bold tracking-tight">
-                Premium Activity Tracking
+                 Activity Tracking
               </h2>
               <p className="text-sm text-muted-foreground">
                 Unlock real-time motion analysis and step counting features.
@@ -328,7 +345,7 @@ export default function ActivityTracker() {
               {isVerifying ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Verifying License...
+                  Verifying...
                 </>
               ) : (
                 "Start Tracking"
@@ -336,7 +353,6 @@ export default function ActivityTracker() {
             </Button>
           </div>
         ) : (
-          // ACTUAL TRACKER UI (Only rendered if verified)
           <>
             <Card
               className={cn(
@@ -359,9 +375,7 @@ export default function ActivityTracker() {
                   {activity}
                 </CardTitle>
                 <CardDescription>
-                  {activity === "Calibrating..."
-                    ? "Analyzing sensor data..."
-                    : "Real-time classification"}
+                  Real-time classification
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -405,11 +419,11 @@ export default function ActivityTracker() {
               </CardHeader>
               <CardContent className="p-4 pt-0">
                 <Progress
-                  value={Math.min((magnitude / 5) * 100, 100)}
+                  value={Math.min((magnitude / 8) * 100, 100)}
                   className="h-3"
                 />
                 <p className="text-[10px] text-muted-foreground mt-2 text-right">
-                  m/s² (Smoothed)
+                  m/s² (Linear Acceleration)
                 </p>
               </CardContent>
             </Card>
