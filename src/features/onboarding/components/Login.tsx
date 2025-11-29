@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { USER_PIN } from "@/lib/constants";
+import { USER_PIN, USER_REGISTERED } from "@/lib/constants";
 import { Lock, Delete, AlertCircle, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -78,7 +78,10 @@ export default function Login() {
       <Card className="w-full max-w-sm border-none">
         <CardHeader className="text-center">
           <div className="mx-auto h-12 w-12 -mt-8 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            <Lock className="h-6 w-6 text-primary" />
+            <Lock onClick={()=>{
+              localStorage.removeItem(USER_REGISTERED)
+              toast.info("Hello there!")
+            }} className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>
