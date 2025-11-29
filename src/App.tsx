@@ -19,6 +19,7 @@ const App = () => {
     "/create-password",
     "/meals",
     "/recipes",
+    "/onboarding",
     "/profile",
   ];
 
