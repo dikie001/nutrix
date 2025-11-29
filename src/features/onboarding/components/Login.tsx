@@ -6,7 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { USER_PIN, USER_REGISTERED } from "@/lib/constants";
+import { USER_PAID, USER_PIN, USER_REGISTERED } from "@/lib/constants";
 import { Lock, Delete, AlertCircle, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -81,6 +81,9 @@ export default function Login() {
             <Lock onClick={()=>{
               localStorage.removeItem(USER_REGISTERED)
               toast.info("Hello there!")
+            }} onDoubleClick={()=>{
+              localStorage.removeItem(USER_PAID)
+              toast.info("Hello again, I hope you are doing great!")
             }} className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
